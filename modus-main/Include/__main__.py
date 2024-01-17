@@ -33,8 +33,8 @@ import os
 
 
 # TO DO: Figure out how to store the API key in a more secure way.
-# For now, check in D:\Documents\GitHub\ModusREBORN\.gitignore to make sure the API key is not uploaded to GitHub
-apiKeyFile = open("D:\Documents\GitHub\ModusREBORN\Include\openai_api_key.txt", "r")
+# For now, check in D:\Documents\GitHub\ModusREBORN\.gitignore\sensitive to make sure the API key is not uploaded to GitHub
+apiKeyFile = open("D:\\Documents\\GitHub\\ModusREBORN\\.gitignore\\sensitive\\api-key.txt", "r")
 recording = False
 api_key = ""
 
@@ -63,12 +63,15 @@ def listenAndRecord():
     
     # Call the record method of the Recorder instance
     audioFile = recorder.record()
-
-    print(f"Recording saved as: {audioFile}")
-    
     # Check the length of the audio file. If it's too short, delete it and return "too short". Otherwise, return the audio file
-    if utils.checkAudioLength(audioFile) <= 1:
-        os.remove(audioFile)
+    duration = utils.checkAudioLength(audioFile)
+    # round off duration to 1 decimal place.
+    duration = round(duration, 1)
+    
+    print(f"Recording saved as: {audioFile}")
+    print(f"Recording duration: {duration} seconds")
+
+    if duration <= 1.5:
         recording = False
         return "too short"
     
@@ -102,6 +105,9 @@ def main():
     # Transcribe the audio and print the result
     transcribedAudio = transcriber.transcribe(recordedAudio)
     print(transcribedAudio)
+    
+    # discard the audio file since it is no longer needed.
+    os.remove(recordedAudio)
     
     # Stop the timer and print the execution time
     executionTime = utils.stopTimer("MODUSResponseTime")
