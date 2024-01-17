@@ -1,22 +1,19 @@
 # Basic utility functions for the modus package.
 
 import os
-import sys
-import time
-import math
-import random
-import string
-import datetime
+import wave
+import contextlib
 import webbrowser
-import subprocess
 import platform
-import json
 import threading
+import time
 
 # Define the class
 
 class Utilities:
     def __init__(self):
+        self.timers = {}
+        
         self.os = platform.system()
         self.osVersion = platform.release()
         
@@ -69,6 +66,30 @@ class Utilities:
 
     def openWebsiteInBrowser(self, url):
         webbrowser.open(url, new=2)
+        
+    # returns the length of an audio file in seconds   
+    def checkAudioLength(self, audioFile):
+        with contextlib.closing(wave.open(audioFile, 'r')) as f:
+            frames = f.getnframes()
+            rate = f.getframerate()
+            duration = frames / float(rate)
+            return duration
+        
+        
+        
+    # starts a timer with the given name
+    def startTimer(self, timer_name):
+        self.timers[timer_name] = time.time()
 
+    # returns the elapsed time since the named timer was started
+    def stopTimer(self, timer_name):
+        if timer_name in self.timers:
+            elapsed_time = time.time() - self.timers[timer_name]
+            return round(elapsed_time, 3)
+        else:
+            print(f"Timer with name '{timer_name}' not found.")
+            return None
 
+        
+        
         
