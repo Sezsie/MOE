@@ -34,7 +34,7 @@ import os
 
 # TO DO: Figure out how to store the API key in a more secure way.
 # For now, check in modus-main\.gitignore and grab the API key from there.
-apiKeyFile = open("modus-main/.gitignore/api-key.txt", "r")
+apiKeyFile = open("modus-main/.gitignore/sensitive/api-key.txt", "r")
 recording = False
 api_key = ""
 
