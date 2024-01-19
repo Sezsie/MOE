@@ -111,7 +111,10 @@ def main():
     
     # Stop the timer and print the execution time
     executionTime = utils.stopTimer("MODUSResponseTime")
+    
     print(f"Total API response time: {executionTime} seconds")
+    
+
   
 #############################################################################################################
 # MAIN
