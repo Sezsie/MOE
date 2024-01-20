@@ -146,10 +146,10 @@ if __name__ == "__main__":
     context = ["The user just came back after a long day of work."]
     randomContext = random.choice(context)
     MODUS.provideContext(randomContext)
+    print("Random Context: " + randomContext)
     
     
     while True:
-        print("Random Context: " + randomContext)
         message = input("Talk to MODUS: ")
         
         # if the user's message contains the word "quit", break out of the loop
