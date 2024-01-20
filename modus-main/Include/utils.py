@@ -62,7 +62,7 @@ class Utilities:
 
             @staticmethod
             def getOpenAIKey():
-                apiKeyFile = open("D:\\Documents\\GitHub\\ModusREBORN\\.gitignore\\sensitive\\api-key.txt", "r")
+                apiKeyFile = open("D:\\Documents\\GitHub\\ModusREBORN\\keys\\api-key.txt", "r")
                 api_key = ""
 
                 with apiKeyFile as f:  
