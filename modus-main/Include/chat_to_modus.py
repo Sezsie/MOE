@@ -48,7 +48,7 @@ def chat_with_modus(userSpeech):
     # low chance to add context that sways MODUS's response towards starting conversation.
     randInt = random.randint(1, 100)
     
-    if randInt <= 100: 
+    if randInt <= 25: 
         MODUS.addContext("The user seems eager to talk. Try to start small talk.")
     
     
