@@ -1,10 +1,16 @@
 import openai
-import random
+from utils import Utilities
+from utils import DebuggingUtilities
+utils = Utilities()
+debug = DebuggingUtilities()
+dprint = debug.dprint
+
+api_key = Utilities.getOpenAIKey()
 
 class AIHandler:
     # initialize the AIHandler class with the API key.
     # AIHandler is the main class that handles all created agents, with a suite of functions to create, delete, and get agents.
-    def __init__(self, api_key):
+    def __init__(self):
         openai.api_key = api_key
         self.client = openai
         self.agents = {}
@@ -91,7 +97,6 @@ class Agent:
         # set the message logs to the new message logs
         self.message_logs = message_logs
         
-
    
     def chat(self, message):
         self.check_message_logs()
@@ -111,49 +116,7 @@ class Agent:
     # insert a message into the message history of the agent without calling the API.
     # this is useful to provide context to ensure more relevant responses from the API later.
     # after inserting the message, we will insert a reaffirming message from the agent to ensure it latches onto the context.
-    def provideContext(self, message):
+    def addContext(self, message):
+        dprint(f"Context Added: {message}")
         self.message_logs.append({"role": "system", "content": "Context: " + message})
-
-
-
-
-   
-# usage example of various functions in this file
-if __name__ == "__main__":
-    apiKeyFile = open("D:\\Documents\\GitHub\\ModusREBORN\\.gitignore\\sensitive\\api-key.txt", "r")
-    api_key = ""
-
-    with apiKeyFile as f:  
-        api_key = f.read().replace("\n", "")
-        # Removed f.close()
-        
-    ai = AIHandler(api_key)
-    MODUS = ai.createAgent(
-    "MODUS",
-    
-    "gpt-3.5-turbo", 
-    
-    """You are MODUS, a posh, funny, charismatic, and casual assistant. However, you can be a sarcastic smartass at times.
-    You use 10% passive voice and excel at small talk. You like telling jokes and making puns.
-    You refer to your user as 'Master'.
-    You are here to help the user with their tasks, and to provide them with companionship.
-    You pay attention to additional context and the user's emotions. You keep your responses two sentences max."""
-    )
-    
-    # we will create a random list of contextural messages and randomize them.
-    # then, we will provide the context to the agent.
-    # this is to test that the agent will latch onto the context and provide more relevant responses.
-    context = ["The user just came back after a long day of work."]
-    randomContext = random.choice(context)
-    MODUS.provideContext(randomContext)
-    print("Random Context: " + randomContext)
-    
-    
-    while True:
-        message = input("Talk to MODUS: ")
-        
-        # if the user's message contains the word "quit", break out of the loop
-        if "quit" in message:
-            break
-        print("MODUS says: " + MODUS.chat(message))
     

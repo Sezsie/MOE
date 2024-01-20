@@ -4,10 +4,10 @@ import math
 import time
 import struct
 
-
 from utils import Utilities
+from utils import DebuggingUtilities
 utils = Utilities()
-
+debug = DebuggingUtilities()
 
 # This class is used to record audio from the user's microphone while they are speaking. It will stop recording when there has been silence for a certain amount of time.
 
@@ -55,7 +55,8 @@ class VoiceRecorder:
                                  input_device_index=0,
                                  frames_per_buffer=self.CHUNK)
 
-        print("Please start talking.")
+        print("Recording...")
+        
         audio_chunks = []
         silent_chunks = []
 
@@ -71,7 +72,6 @@ class VoiceRecorder:
                     silent_chunks.append(1)
                 else:
                     i += 1
-                    print(f"Speech detected {i} times.")
                     silent_chunks = []
                     
                 if len(silent_chunks) > self.SILENT_CHUNKS:

@@ -23,16 +23,7 @@ class HotkeyHandler:
         
     def waitForKey(self):
         keyboard.wait(self.hotkey)
-        
-        
 
-# usage example:
-# def function():
-#     print("You pressed alt+m")
-#
-# handler = hotkeyhandler("alt+m", function)
-        
-# handler.stop()
 
 
 

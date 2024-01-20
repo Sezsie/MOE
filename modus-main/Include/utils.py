@@ -11,85 +11,119 @@ import time
 # Define the class
 
 class Utilities:
+            @staticmethod
+            def getOS():
+                return os
+
+            @staticmethod
+            def getOSVersion():
+                return platform.platform()
+
+            @staticmethod
+            def getOSVersionName():
+                return platform.system()
+
+            @staticmethod
+            def scheduleRemoval(file, time):
+                if isinstance(file, str):
+                    threading.Timer(time, os.remove, args=[file]).start()
+                else:
+                    threading.Timer(time, os.remove, args=[file.name]).start()
+
+            @staticmethod
+            def openFile(file):
+                if isinstance(file, str):
+                    os.startfile(file)
+                else:
+                    os.startfile(file.name)
+
+            @staticmethod
+            def openFolder(folder):
+                if isinstance(folder, str):
+                    os.startfile(folder)
+                else:
+                    os.startfile(folder.name)
+
+            @staticmethod
+            def openWebsite(url):
+                webbrowser.open(url)
+
+            @staticmethod
+            def openWebsiteInBrowser(url):
+                webbrowser.open(url, new=2)
+
+            @staticmethod
+            def checkAudioLength(audioFile):
+                with contextlib.closing(wave.open(audioFile, 'r')) as f:
+                    frames = f.getnframes()
+                    rate = f.getframerate()
+                    duration = frames / float(rate)
+                    return duration
+
+            @staticmethod
+            def getOpenAIKey():
+                apiKeyFile = open("D:\\Documents\\GitHub\\ModusREBORN\\.gitignore\\sensitive\\api-key.txt", "r")
+                api_key = ""
+
+                with apiKeyFile as f:  
+                    api_key = f.read().replace("\n", "")
+                    
+                return api_key
+
+
+class DebuggingUtilities:
+    debugMode = False
+    
     def __init__(self):
         self.timers = {}
-        
-        self.os = platform.system()
-        self.osVersion = platform.release()
-        
-    def getOS(self):
-        return self.os
     
-    def getOSVersion(self):
-        return self.osVersion
+    @classmethod
+    # set the debug mode to True or False, or toggle it if no argument is given
+    def setDebugMode(self, mode):
+        if mode == True:
+            self.debugMode = True
+        elif mode == False:
+            self.debugMode = False
+        else:
+            self.debugMode = not self.debugMode
     
-    def getOSVersionName(self):
-        return self.osVersionName
+    # prints a message with the [DEBUG] tag. only used in this debug class. 
+    def dprint(self, message):
+        if DebuggingUtilities.debugMode:
+            print("[DEBUG] " + message)
     
-
-    
-    def clearScreen(self):
-        if self.os == "Windows":
-            os.system("cls")
-        else:
-            os.system("clear")
-            
-           
-            
-    # starts a thread that will delete a file when either given its path or the file object itself after a specified amount of time (in seconds).
-    def scheduleRemoval(self, file, time):
-        
-        if isinstance(file, str):
-            threading.Timer(time, os.remove, args=[file]).start()
-        else:
-            threading.Timer(time, os.remove, args=[file.name]).start()
-          
-            
-    def openFile(self, file):
-        if isinstance(file, str):
-            os.startfile(file)
-        else:
-            os.startfile(file.name)
-            
-            
-    def openFolder(self, folder):
-        if isinstance(folder, str):
-            os.startfile(folder)
-        else:
-            os.startfile(folder.name)
-        
-        
-        
-    def openWebsite(self, url):
-        webbrowser.open(url)
-
-
-    def openWebsiteInBrowser(self, url):
-        webbrowser.open(url, new=2)
-        
-    # returns the length of an audio file in seconds   
-    def checkAudioLength(self, audioFile):
-        with contextlib.closing(wave.open(audioFile, 'r')) as f:
-            frames = f.getnframes()
-            rate = f.getframerate()
-            duration = frames / float(rate)
-            return duration
-        
-        
-        
     # starts a timer with the given name
     def startTimer(self, timer_name):
         self.timers[timer_name] = time.time()
+        self.dprint(f"Timer '{timer_name}' started.")
 
-    # returns the elapsed time since the named timer was started
+    # returns and prints the elapsed time since the named timer was started
     def stopTimer(self, timer_name):
+        if timer_name in self.timers:
+            elapsed_time = time.time() - self.timers[timer_name]
+            self.dprint(f"Timer '{timer_name}' elapsed time: {elapsed_time} seconds.")
+            return round(elapsed_time, 3)
+        else:
+            self.dprint(f"Timer with name '{timer_name}' not found.")
+            return None
+    
+    # check a currently running timer if it exists
+    def checkTimer(self, timer_name):
         if timer_name in self.timers:
             elapsed_time = time.time() - self.timers[timer_name]
             return round(elapsed_time, 3)
         else:
-            print(f"Timer with name '{timer_name}' not found.")
             return None
-
         
+    # removes a timer by name
+    def removeTimer(self, timer_name):
+        if timer_name in self.timers:
+            del self.timers[timer_name]
+        else:
+            self.dprint(f"Timer with name '{timer_name}' not found.")
         
-        
+    def clearScreen(self):
+        if Utilities.getOS == "Windows":
+            os.system("cls")
+        else:
+            os.system("clear")

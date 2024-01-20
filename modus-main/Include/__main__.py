@@ -2,51 +2,43 @@
 #############################################################################################################
 # DOCUMENTATION
 #############################################################################################################
-
 # AUTHOR: Sezzie
-# LAST UPDATED: 2024-16-01
+# LAST UPDATED: 2024-19-01
 # FUNCTION: An interactive AI assistant that serves the user's needs by executing commands. The AI
 # will interpret and remember the user's commands and preferences, and will learn to adapt to the user's own
 # unique style of communication. Should the AI be unable to perform a command, the user will be able to modify
-# the AI's memory so the mistake is not repeated in the future.
+# the AI's memory directly so the mistake is not repeated in the future.
 #
-# PURPOSE: To make the user's life easier by automating tasks in a convenient and intelligent way.
+# PURPOSE: To make the user's life easier by automating tasks using natural language.
 #############################################################################################################
 
 
+
 #############################################################################################################
-# IMPORTS
+# IMPORTS AND GLOBALS
 #############################################################################################################
+import threading
+import os
 
 from handle_hotkeys import HotkeyHandler
 from record_voice import VoiceRecorder
 from transcribe_audio import AudioTranscriber
 
 from utils import Utilities
+from utils import DebuggingUtilities
 from time import sleep
+from chat_to_modus import chat_with_modus
 
-import os
-
-#############################################################################################################
-# GLOBAL VARIABLES
-#############################################################################################################
-
-
-# TO DO: Figure out how to store the API key in a more secure way.
-# For now, check in D:\Documents\GitHub\ModusREBORN\.gitignore\sensitive to make sure the API key is not uploaded to GitHub
-apiKeyFile = open("D:\\Documents\\GitHub\\ModusREBORN\\.gitignore\\sensitive\\api-key.txt", "r")
-recording = False
-api_key = ""
-
-# Read the API key from the file and store it as a string
-with apiKeyFile as f:  
-    api_key = f.read().replace("\n", "")
-    f.close()
-
-# Create instances of the Recorder, Transcriber, and Utilities classes
+api_key = Utilities.getOpenAIKey()
 recorder = VoiceRecorder()
-transcriber = AudioTranscriber(api_key)
+transcriber = AudioTranscriber()
 utils = Utilities()
+debug = DebuggingUtilities()
+dprint = debug.dprint 
+recording = False
+
+# Settings
+debug.setDebugMode(True)
 
 #############################################################################################################
 # FUNCTIONS
@@ -59,8 +51,6 @@ def listenAndRecord():
     # Set the recording flag to True
     recording = True
     
-    print("Listening...")
-    
     # Call the record method of the Recorder instance
     audioFile = recorder.record()
     # Check the length of the audio file. If it's too short, delete it and return "too short". Otherwise, return the audio file
@@ -68,8 +58,8 @@ def listenAndRecord():
     # round off duration to 1 decimal place.
     duration = round(duration, 1)
     
-    print(f"Recording saved as: {audioFile}")
-    print(f"Recording duration: {duration} seconds")
+    dprint(f"Recording saved as: {audioFile}")
+    dprint(f"Recording duration: {duration} seconds")
 
     if duration <= 1.5:
         recording = False
@@ -83,8 +73,7 @@ def listenAndRecord():
 # Main function
 def main():
     global recording
-    global api_key
-    
+
     # If currently recording, return
     if recording:
         return
@@ -97,22 +86,21 @@ def main():
         print("Audio file too short. Please try again.")
         return
     
-    # Start a timer
-    utils.startTimer("MODUSResponseTime")
-    
     print("Transcribing...")
     
     # Transcribe the audio and print the result
     transcribedAudio = transcriber.transcribe(recordedAudio)
-    print(transcribedAudio)
     
     # discard the audio file since it is no longer needed.
     os.remove(recordedAudio)
     
-    # Stop the timer and print the execution time
-    executionTime = utils.stopTimer("MODUSResponseTime")
+    # chat with MODUS in a separate thread while CODUS (not yet implemented) processes the user's requests.
+    thread = threading.Thread(target=chat_with_modus, args=[transcribedAudio])
+    thread.start()
     
-    print(f"Total API response time: {executionTime} seconds")
+    # TO DO: use machine learning to check if the user's request is similar to a previous command, and if so, use the code from the relevant command.
+    # thread = threading.Thread(target=check_request_similarity, args=[transcribedAudio])
+    # thread.start()
     
 
   
