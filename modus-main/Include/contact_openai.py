@@ -100,15 +100,18 @@ class Agent:
    
     def chat(self, message):
         self.check_message_logs()
+        debug.startTimer("OpenAIChat")
         
         self.message_logs.append({"role": "user", "content": message})
         
         response = self.client.chat.completions.create(
-            model=self.model or "gpt-3.5-turbo",
+            model=self.model or "gpt-3.5-turbo-1106",
             messages=self.message_logs
         )
         
         agentResponse = response.choices[0].message.content
+        
+        debug.stopTimer("OpenAIChat")
         
         self.message_logs.append({"role": "assistant", "content": agentResponse})  # Corrected line
         return agentResponse
