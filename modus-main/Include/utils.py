@@ -7,6 +7,8 @@ import webbrowser
 import platform
 import threading
 import time
+import re
+
 
 # Define the class
 
@@ -69,6 +71,23 @@ class Utilities:
                     api_key = f.read().replace("\n", "")
                     
                 return api_key
+            
+            @staticmethod
+            def extract_text_by_header(markdown_text, header):
+                """
+                Extracts and returns the text under a specified Markdown header until an empty line is encountered.
+                
+                :param markdown_text: String containing the entire Markdown content.
+                :param header: The Markdown header to find (e.g., 'my_response' for '## my_response').
+                :return: Extracted text as a string or None if the header is not found.
+                """
+                # Make the header safe for inclusion in a regex pattern
+                header_pattern = re.escape(header)
+                # Craft the regex pattern to find the header and capture all text that follows
+                # until the next empty line
+                pattern = fr"##\s*{header_pattern}\s*\n+((?:[^\n]+\n)*(?:[^\n]+))(?=\n\s*\n|$)"
+                matches = re.findall(pattern, markdown_text, re.DOTALL)
+                return matches[0].strip() if matches else None
 
 
 class DebuggingUtilities:
@@ -127,3 +146,4 @@ class DebuggingUtilities:
             os.system("cls")
         else:
             os.system("clear")
+        
