@@ -1,15 +1,21 @@
 import threading
 import os
+
+# Hide pygame support prompt
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 import time
 import openai
 import pygame
 
-from pathlib import Path
-from utils import Utilities
-from utils import DebuggingUtilities
+from UTILS.utils import Utilities
+from UTILS.utils import DebuggingUtilities
+from UTILS.utils import FileUtilities
 
 utils = Utilities()
 debug = DebuggingUtilities()
+files = FileUtilities()
 dprint = debug.dprint
 
 api_key = Utilities.getOpenAIKey()
@@ -40,11 +46,13 @@ class SpeechGenerator:
         
 
     def speak(self, text, voice='alloy'):
+        if not text:
+            text = "Something went wrong. Please try again."
         if voice not in self.voices:
             raise ValueError(f"Voice '{voice}' not supported. Choose from {self.voices}")
         debug.startTimer("SpeechGeneration")
 
-        speech_file_path = Path(__file__).parent / "bin" / "MODUS_SPEECH.mp3"
+        speech_file_path = files.getProjectDirectory() + f"\\__bin__\\{voice}_speech.mp3"
         response = self.client.audio.speech.create(
             model=self.model,
             voice=voice,

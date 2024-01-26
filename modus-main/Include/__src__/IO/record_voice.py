@@ -4,10 +4,13 @@ import math
 import time
 import struct
 
-from utils import Utilities
-from utils import DebuggingUtilities
+from UTILS.utils import Utilities
+from UTILS.utils import DebuggingUtilities
+from UTILS.utils import FileUtilities
+
 utils = Utilities()
 debug = DebuggingUtilities()
+files = FileUtilities()
 
 # This class is used to record audio from the user's microphone while they are speaking. It will stop recording when there has been silence for a certain amount of time.
 
@@ -89,8 +92,8 @@ class VoiceRecorder:
 
         # Save the recording
         filename = "recording_" + time.strftime("%Y%m%d-%H%M%S") + ".wav"
-        # move theto modus-main\Include\bin
-        filename = "modus-main/Include/bin/" + filename
+        # move the file to modus-main\Include\bin
+        filename = files.getProjectDirectory() + "\\__bin__\\" + filename
 
         
         wf = wave.open(filename, 'wb')

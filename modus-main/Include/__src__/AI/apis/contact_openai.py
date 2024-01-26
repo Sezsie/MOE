@@ -1,6 +1,6 @@
 import openai
-from utils import Utilities
-from utils import DebuggingUtilities
+from UTILS.utils import Utilities
+from UTILS.utils import DebuggingUtilities
 utils = Utilities()
 debug = DebuggingUtilities()
 dprint = debug.dprint
@@ -64,6 +64,7 @@ class Agent:
         self.message_logs = [{"role": "system", "content": systemprompt}]
         self.model = inputmodel
         self.client = newClient
+        self.agentname = agentname
     
     
     # so openai has a limit on how many tokens it can use as context. this function checks if the message logs have too many characters.
@@ -100,20 +101,38 @@ class Agent:
    
     def chat(self, message):
         self.check_message_logs()
-        debug.startTimer("OpenAIChat")
+        debug.startTimer("OpenAIChat" + self.agentname)
+
+        self.message_logs.append({"role": "user", "content": "User's Message: " + message})
+
+        if self.model == "gpt-3.5-turbo-instruct":
+            agentResponse = self.legacy_chat()
+        else:
+            response = self.client.chat.completions.create(
+                model=self.model or "gpt-3.5-turbo",
+                messages=self.message_logs
+            )
+            agentResponse = response.choices[0].message.content
+
+        debug.stopTimer("OpenAIChat" + self.agentname)
+
+        self.message_logs.append({"role": "assistant", "content": agentResponse})
+        return agentResponse
+
+    def legacy_chat(self):
         
-        self.message_logs.append({"role": "user", "content": message})
+        # Generating the prompt for the legacy chat completion
+        prompt = "\n".join([msg["content"] for msg in self.message_logs])
         
-        response = self.client.chat.completions.create(
-            model=self.model or "gpt-3.5-turbo-1106",
-            messages=self.message_logs
+        response = self.client.completions.create(
+            model="gpt-3.5-turbo-instruct",
+            prompt=prompt,
+            max_tokens=2048  # You can adjust this value as needed
         )
         
-        agentResponse = response.choices[0].message.content
-        
-        debug.stopTimer("OpenAIChat")
-        
-        self.message_logs.append({"role": "assistant", "content": agentResponse})  # Corrected line
+        # Extracting the response and usage information
+        agentResponse = response.choices[0].text
+
         return agentResponse
     
     # insert a message into the message history of the agent without calling the API.
@@ -122,4 +141,8 @@ class Agent:
     def addContext(self, message):
         dprint(f"Context Added: {message}")
         self.message_logs.append({"role": "system", "content": "Context: " + message})
+        
+    # sometimes neccessary to reinforce format
+    def addAssistantMessage(self, message):
+        self.message_logs.append({"role": "assistant", "content": message})
     

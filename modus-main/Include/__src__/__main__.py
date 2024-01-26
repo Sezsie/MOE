@@ -3,7 +3,7 @@
 # DOCUMENTATION
 #############################################################################################################
 # AUTHOR: Sezzie
-# LAST UPDATED: 2024-19-01
+# LAST UPDATED: 2024-25-01
 # FUNCTION: An interactive AI assistant that serves the user's needs by executing commands. The AI
 # will interpret and remember the user's commands and preferences, and will learn to adapt to the user's own
 # unique style of communication. Should the AI be unable to perform a command, the user will be able to modify
@@ -20,15 +20,17 @@
 import threading
 import os
 
-from handle_hotkeys import HotkeyHandler
-from record_voice import VoiceRecorder
-from transcribe_audio import AudioTranscriber
+from IO.handle_hotkeys import HotkeyHandler
+from IO.record_voice import VoiceRecorder
+from AI.apis.transcribe_audio import AudioTranscriber
 
-from utils import Utilities
-from utils import DebuggingUtilities
+from UTILS.utils import Utilities
+from UTILS.utils import DebuggingUtilities
 
 from time import sleep
-from chat_to_modus import chat_with_modus
+from AI.agents.chat_to_modus import chat_with_modus
+from AI.agents.generate_with_codus import generate_with_codus
+
 import tkinter as tk
 from tkinter import simpledialog
 
@@ -93,6 +95,7 @@ def main(string = None):
         return
     
     if string == None:
+        
         # Call the listenAndRecord function and store the result
         recordedAudio = listenAndRecord()
         
@@ -109,16 +112,20 @@ def main(string = None):
         # discard the audio file since it is no longer needed.
         os.remove(recordedAudio)
         
-    # chat with MODUS in a separate thread while CODUS (not yet implemented) processes the user's requests.
+    # chat with MODUS in a separate thread while CODUS processes the user's requests.
     thread = threading.Thread(target=chat_with_modus, args=[transcribedAudio or string])
     thread.start()
-       
-       
-    # TO DO: use machine learning to check if the user's request is similar to a previous command, and if so, use the code from the relevant command.
+    
+    # TO DO: use machine learning to check if the user's request is similar to a previous command, and if so, use the code from the relevant command. otherwise, use CODUS to generate code.
     # thread = threading.Thread(target=check_request_similarity, args=[transcribedAudio])
     # thread.start()
     
-# TO DO: try tor educe the delay between the user's request and the AI's response.
+    # generate code with CODUS in a separate thread. not ready for use, so I return here.
+    return
+    thread = threading.Thread(target=generate_with_codus, args=[transcribedAudio or string])
+    thread.start()
+    
+# TO DO: try to reduce the delay between the user's request and the AI's response.
   
 #############################################################################################################
 # MAIN
@@ -134,9 +141,5 @@ if __name__ == "__main__":
     # Keep the program running with a loop that sleeps for 1 second at a time
     while True:
         text = get_text_w_UI()
-        if text == None:
-            break
-        else:
-            main(text)
+        main(text)
         sleep(1)
-        pass
