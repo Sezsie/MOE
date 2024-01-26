@@ -15,14 +15,6 @@ import re
 class Utilities:
             @staticmethod
             def getOS():
-                return os
-
-            @staticmethod
-            def getOSVersion():
-                return platform.platform()
-
-            @staticmethod
-            def getOSVersionName():
                 return platform.system()
 
             @staticmethod
@@ -64,13 +56,14 @@ class Utilities:
 
             @staticmethod
             def getOpenAIKey():
-                apiKeyFile = open("D:\\Documents\\GitHub\\ModusREBORN\\modus-main\\Include\\__auth__\\api-key.txt", "r")
-                api_key = ""
+                api_key_file_path = FileUtilities.getProjectDirectory() + "\\__auth__\\api-key.txt"
+                
+                # Open the file and read the key
+                with open(api_key_file_path, "r") as apiKeyFile:
+                    api_key = apiKeyFile.read().strip()
 
-                with apiKeyFile as f:  
-                    api_key = f.read().replace("\n", "")
-                    
                 return api_key
+
             
             @staticmethod
             def extract_text_by_header(markdown_text, header):
@@ -146,4 +139,11 @@ class DebuggingUtilities:
             os.system("cls")
         else:
             os.system("clear")
+  
+            
+class FileUtilities:
+    # simply returns the topmost directory of the project (Include)
+    @staticmethod
+    def getProjectDirectory():
+        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
         

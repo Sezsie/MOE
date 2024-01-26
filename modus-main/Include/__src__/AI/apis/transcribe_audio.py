@@ -1,7 +1,7 @@
 import requests
 
-from utils import Utilities
-from utils import DebuggingUtilities
+from UTILS.utils import Utilities
+from UTILS.utils import DebuggingUtilities
 
 api_key = Utilities.getOpenAIKey()
 utils = Utilities()
