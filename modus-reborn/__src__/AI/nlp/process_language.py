@@ -1,6 +1,6 @@
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification, Trainer, TrainingArguments
 import torch
-
+# NOTE: THIS CODE IS NOT READY FOR PRODUCTION!!! This is simply a test that I used to educate myself a bit on huggingface.
 # Load the tokenizer and model
 tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
 model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased')
