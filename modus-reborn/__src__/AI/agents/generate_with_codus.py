@@ -18,7 +18,7 @@ dprint = debug.dprint
 # list of models and their use cases:
 # gpt-3.5-turbo-instruct: instruction-based output
 # gpt-3.5-turbo-1106: conversational output
-# gpt-4-turbo: jack of all trades, perfect for detailed output with a lot of context.
+# gpt-4-turbo: jack of all trades, perfect for detailed output with a lot of context. (ALSO EXPENSIVE, USE ABOVE MODELS IF POSSIBLE.)
 
 agentName = "CODUS"
 agentModel = "gpt-4-turbo-preview"
