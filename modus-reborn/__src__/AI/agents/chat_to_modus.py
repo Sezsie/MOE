@@ -15,7 +15,6 @@ speech = SpeechGenerator()
 dprint = debug.dprint
 
 # modus-specific globals
-# provided for your convenience, but feel free to change them.
 
 # list of models and their use cases:
 # gpt-3.5-turbo-instruct: instruction-based output
@@ -23,7 +22,7 @@ dprint = debug.dprint
 # gpt-4-turbo: jack of all trades, perfect for detailed output with a lot of context
 
 agentName = "MODUS"
-agentModel = "gpt-3.5-turbo-1106"
+agentModel = "gpt-3.5-turbo-instruct"
 agentPrompt = """
 You are acting as the Multi-Operational Directed Utilities System, casually known as MODUS. 
     
@@ -42,7 +41,7 @@ YOUR PERSONALITY: As MODUS, you are a posh, funny, charismatic, and casual assis
 Please follow the following format when crafting every one of your responses: 
 Firstly, return a markdown header with the text "# inner_monologue". Under this, briefly summarize what you have talked about with the user thus far and reflect on your own behavior, how you're doing in conversation, how you should react to the user's message, what you're thinking about.
 
-Finally, return a markdown header with the text "## my_response". Under this, write a brief response to the user's message that is a maximum of two sentences attempts to blend their writing style with your own. Do not include any words that were said underneath the "# inner_monologue" section.
+Finally, return a markdown header with the text "## my_response". Under this, write a brief response to the user's message that is a maximum of two sentences, attempting to blend their writing style with your own. Do not include any words that were said underneath the "# inner_monologue" section.
 """
 
 # create an agent named MODUS.
@@ -58,13 +57,16 @@ MODUS = ai.createAgent(
 # this function will be called when the user wants to chat with MODUS. basically just a wrapper for the chat function in the AIHandler class.
 # it takes a string, userSpeech, as an argument, which is the user's transcribed speech. it then passes that string to the chat function in the AIHandler class.
 # the chat function in the AIHandler class will then pass the string to OpenAI's chat API, and return the response.
-# this function will then return the response, and generate artificial speech from it (not yet implemented).
+# it will return the response from the chat function as audio using the SpeechGenerator class.
 def chat_with_modus(userSpeech):
     # Start a timer
     debug.startTimer("MODUSResponseTime")
     
     MODUSResponse = MODUS.chat(userSpeech)
     
+    # TODO: THIS DOES NOT WORK WITH EACH RUN! FIX THIS!
+    # REASON: the AI does not always return the required string format for the extract_text_by_header function to work.
+    # POSSIBLE FIX: call OpenAI's api multiple times and compile the responses into a single string with the required format.
     extractedResponse = utilities.extract_text_by_header(MODUSResponse, "my_response")
     
     # generate artificial speech from the response

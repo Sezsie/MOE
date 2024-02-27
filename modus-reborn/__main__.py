@@ -49,16 +49,16 @@ debug.setDebugMode(True)
 # FUNCTIONS
 #############################################################################################################
 
-# Function to start recording audio
+# start recording audio
 def listenAndRecord():
     global recording
     
-    # Set the recording flag to True
+    # set the recording flag to True
     recording = True
     
-    # Call the record method of the Recorder instance
+    # call the record method of the Recorder instance
     audioFile = recorder.record()
-    # Check the length of the audio file. If it's too short, delete it and return "too short". Otherwise, return the audio file
+    # check the length of the audio file. if it's too short, delete it and return "too short". Otherwise, return the audio file
     duration = utils.checkAudioLength(audioFile)
     # round off duration to 1 decimal place.
     duration = round(duration, 1)
@@ -74,39 +74,41 @@ def listenAndRecord():
     recording = False
     return audioFile
 
+# this is just a testing function that makes a simple dialog box to get text input from the user.
+# this is never used by the user, as the main form of interaction with MODUS is through voice commands.
 def get_text_w_UI():
     root = tk.Tk()
-    root.withdraw()  # Hide the main window (we just need the dialog)
+    root.withdraw()  # hide the main window (we just need the dialog)
     
-    # This line pops up the dialog box, waits for input, then destroys the root window
+    # this line pops up the dialog box, waits for input, then destroys the root window
     user_input = simpledialog.askstring(title="Text Input", prompt="Type something here:")
     
     return user_input
 
 
-# Main function with optional text parameter
+# main function with optional text parameter
 def main(string = None):
     global recording
     
     transcribedAudio = None
 
-    # If currently recording, return
+    # if currently recording, return
     if recording:
         return
     
     if string == None:
         
-        # Call the listenAndRecord function and store the result
+        # call the listenAndRecord function and store the result
         recordedAudio = listenAndRecord()
         
-        # If the audio file was too short, print a message and return
+        # if the audio file was too short, print a message and return
         if recordedAudio == "too short":
             print("Audio file too short. Please try again.")
             return
         
         print("Transcribing...")
         
-        # Transcribe the audio and print the result
+        # transcribe the audio and print the result
         transcribedAudio = transcriber.transcribe(recordedAudio)
         
         # discard the audio file since it is no longer needed.
