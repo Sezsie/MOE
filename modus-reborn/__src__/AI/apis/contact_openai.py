@@ -53,8 +53,7 @@ class AIHandler:
     
     
     
-    
-    
+# TODO: consider swapping from OpenAI's platform to Mistral's platform, as the pricing is more reasonable and there is more model variety.  
 class Agent:
             
     def __init__(self, agentname, inputmodel, systemprompt, newClient):
