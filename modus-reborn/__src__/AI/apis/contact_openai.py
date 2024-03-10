@@ -59,11 +59,11 @@ class Agent:
     def __init__(self, agentname, inputmodel, systemprompt, newClient):
         systemprompt = "Your name is " + agentname + ". " + systemprompt
         
+        self.ai_handler = AIHandler()
         self.message_logs = [{"role": "system", "content": systemprompt}]
         self.model = inputmodel
         self.client = newClient
         self.agentname = agentname
-    
     
     # so openai has a limit on how many tokens it can use as context. this function checks if the message logs have too many characters.
     # if the message logs strings have too many tokens, it will remove the oldest non-system messages until the message logs have less than a max amount of characters.
@@ -72,7 +72,7 @@ class Agent:
         # every token is equal to 5 characters, roundabout, so we will use that as a basis for the max amount of tokens.
         # the max amount of tokens for gpt-3.5-turbo is 2048 or so, so we will use 2000 as the max amount of tokens to be safe.
         # we multiply the max amount of tokens by 5 to convert to the max amount of characters, which is easier to check.
-        max_tokens = 2000 * 5 # about 10000 characters
+        max_tokens = 4000 * 5 # about 20000 characters
 
         # get the message logs
         message_logs = self.message_logs
@@ -123,9 +123,9 @@ class Agent:
         prompt = "\n".join([msg["content"] for msg in self.message_logs])
         
         response = self.client.completions.create(
-            model="gpt-3.5-turbo-instruct",
+            model="gpt-3.5-turbo",
             prompt=prompt,
-            max_tokens=2048  # You can adjust this value as needed
+            max_tokens=2048 
         )
         
         # Extracting the response and usage information
@@ -133,9 +133,25 @@ class Agent:
 
         return agentResponse
     
+    # this method is used to steer the AI's responses based on the context of the headers.
+    # NOTE: IN ORDER FOR THIS TO WORK, THE AI'S PROMPT MUST HAVE DESCRIPTIONS OF THE HEADERS IN THE PROMPT.
+    def formatted_chat(self, userText, headers):
+        agent = self.ai_handler.getAgent(self.agentname)
+        
+        totalString = ""
+        for index, header in enumerate(headers):
+            # add context to direct the AI's responses
+            self.addContext(header)
+            
+            # generate and append the response
+            response = self.chat(userText)
+            
+            totalString += f"{header}\n" + response + "\n"
+        
+        return totalString
+    
     # insert a message into the message history of the agent without calling the API.
     # this is useful to provide context to ensure more relevant responses from the API later.
-    # after inserting the message, we will insert a reaffirming message from the agent to ensure it latches onto the context.
     def addContext(self, message):
         dprint(f"Context Added: {message}")
         self.message_logs.append({"role": "system", "content": "Context: " + message})
@@ -143,4 +159,3 @@ class Agent:
     # sometimes neccessary to reinforce format
     def addAssistantMessage(self, message):
         self.message_logs.append({"role": "assistant", "content": message})
-    
