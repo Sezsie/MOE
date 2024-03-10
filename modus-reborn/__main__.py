@@ -133,15 +133,12 @@ def main(string = None):
 # MAIN
 #############################################################################################################
 
+print("MODUS is running...")
 Handler = HotkeyHandler("alt+m", main)
 
 # If this script is the main module, execute the main function when the hotkey is pressed
 if __name__ == "__main__":
     
-    print("MODUS is running...")
-    
     # Keep the program running with a loop that sleeps for 1 second at a time
     while True:
-        text = get_text_w_UI()
-        main(text)
         sleep(1)

@@ -1,8 +1,7 @@
 # HotkeyHandler.py
 
 # Description: A class that handles hotkeys for the modus AI assistant. This class is designed to be
-# used in conjunction with the keyboard module, which can be installed using pip. The keyboard module
-# is a cross-platform module that allows for the detection of keyboard events, such as key presses.
+# used in conjunction with the keyboard module.
 
 import keyboard
 
@@ -23,8 +22,3 @@ class HotkeyHandler:
         
     def waitForKey(self):
         keyboard.wait(self.hotkey)
-
-
-
-
-
