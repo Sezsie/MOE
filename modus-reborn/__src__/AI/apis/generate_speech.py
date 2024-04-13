@@ -1,7 +1,7 @@
 import threading
 import os
 
-# Hide pygame support prompt
+# hide pygame support prompt
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
