@@ -1,5 +1,9 @@
+
+
 import openai
 from __src__.UTILS.utils import Utilities, DebuggingUtilities
+
+
 utils = Utilities()
 debug = DebuggingUtilities()
 dprint = debug.dprint
@@ -82,8 +86,6 @@ class Agent:
         for message in message_logs:
             total_tokens += len(message["content"].split(" "))
         
-        print("Total tokens: " + str(total_tokens))
-        
         # if the total amount of tokens is greater than the max amount of tokens, remove the oldest non-system messages until the total amount of tokens is less than the max amount of tokens.
         while total_tokens > max_tokens:
             for message in message_logs:
@@ -136,7 +138,6 @@ class Agent:
     # this method is used to steer the AI's responses based on the context of the headers.
     # NOTE: IN ORDER FOR THIS TO WORK, THE AI'S PROMPT MUST HAVE DESCRIPTIONS OF THE HEADERS IN THE PROMPT.
     def formatted_chat(self, userText, headers):
-        agent = self.ai_handler.getAgent(self.agentname)
         
         totalString = ""
         for index, header in enumerate(headers):
@@ -150,11 +151,13 @@ class Agent:
         
         return totalString
     
-    # insert a message into the message history of the agent without calling the API.
-    # this is useful to provide context to ensure more relevant responses from the API later.
     def addContext(self, message):
-        dprint(f"Context Added: {message}")
+        dprint(f"Context Added: {message}") 
         self.message_logs.append({"role": "system", "content": "Context: " + message})
+    
+    # deletes all currently stored syetem messages, except for the first one (the first one is what sets the AI's personality and rules.)
+    def wipeSystemMessages(self):
+        self.message_logs = self.message_logs[:1]
         
     # sometimes neccessary to reinforce format
     def addAssistantMessage(self, message):
