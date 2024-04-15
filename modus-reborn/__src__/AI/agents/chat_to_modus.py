@@ -2,7 +2,6 @@
 from __src__.AI.apis.contact_openai import AIHandler
 from __src__.AI.apis.generate_speech import SpeechGenerator
 from __src__.UTILS.utils import Utilities, DebuggingUtilities
-from __src__.AI.nlp.classifier import RequestClassifier
 
 # globals
 
@@ -11,6 +10,10 @@ debug = DebuggingUtilities()
 ai = AIHandler.getInstance()
 speech = SpeechGenerator()
 dprint = debug.dprint
+
+# this script is used to chat with the MODUS AI agent.
+# the user can chat with MODUS by calling the chat_with_modus function and passing in their speech as a string.
+# I could have just kept this in the main script, but I wanted to separate the chat functionality into its own script since the prompt takes up a lot of space.
 
 # modus-specific globals
 
@@ -22,7 +25,8 @@ dprint = debug.dprint
 agentName = "MODUS"
 agentModel = "gpt-3.5-turbo-1106"
 agentPrompt = """
-You are acting as the Multi-Operational Directed Utilities System, casually known as MODUS.
+You are acting as MODUS, multi-operational directed utilities system. 
+You are a desktop AI assistant designed to learn and adapt to your user's needs.
 You start out not knowing much, but you can learn with guidance from your user.
     
     As MODUS, you follow these rules without exceptions:

@@ -12,7 +12,10 @@ utils = Utilities()
 debug = DebuggingUtilities()
 files = FileUtilities()
 
-# This class is used to record audio from the user's microphone while they are speaking. It will stop recording when there has been silence for a certain amount of time.
+# this class is used to record audio from the user's microphone while they are speaking. it will stop recording when there has been silence for a certain amount of time.
+
+# note from future me: holy CRAP this class is messy.
+# TODO: rebuild this class from scratch with sensitivity settings, mic input settings, etc etc.
 
 class VoiceRecorder:
     def __init__(self):
@@ -20,7 +23,7 @@ class VoiceRecorder:
         self.CHANNELS = 1
         self.RATE = 44100
         self.CHUNK = 1024
-        self.SILENT_CHUNKS = int(1.5 * self.RATE / self.CHUNK)  # About one and a half seconds of silence
+        self.SILENT_CHUNKS = int(1.5 * self.RATE / self.CHUNK)  # about one and a half seconds of silence
         self.SENSITIVITY = 1 # sensitivity of the voice detection algorithm. 0 is high sensitivity, 10 is low sensitivity.
 
     def normalize_threshold(self, sensitivity):
@@ -29,13 +32,13 @@ class VoiceRecorder:
         0 is extremely high sensitivity (low threshold), 100 is extremely low sensitivity (high threshold).
         """
         
-        MAX_RMS = 32767  # Maximum RMS level for 16-bit audio
-        MIN_RMS = 0  # Minimum RMS level
+        MAX_RMS = 32767  # maximum RMS level for 16-bit audio
+        MIN_RMS = 0  # minimum RMS level
 
-        # Reverse the sensitivity scale (so 0 is high sensitivity and 10 is low sensitivity)
+        # reverse the sensitivity scale (so 0 is high sensitivity and 10 is low sensitivity)
         reversed_sensitivity = sensitivity
 
-        # Normalize the reversed sensitivity to the RMS scale
+        # normalize the reversed sensitivity to the RMS scale
         threshold = reversed_sensitivity / 100 * (MAX_RMS - MIN_RMS) + MIN_RMS
         return threshold
 
@@ -90,7 +93,7 @@ class VoiceRecorder:
         stream.close()
         self.audio.terminate()
 
-        # Save the recording
+        # save the recording
         filename = "recording_" + time.strftime("%Y%m%d-%H%M%S") + ".wav"
         # move the file to modus-main\Include\bin
         filename = files.getProjectDirectory() + "\\__bin__\\" + filename
@@ -104,19 +107,5 @@ class VoiceRecorder:
         wf.close()
 
         return filename 
-
-
-    
-if __name__ == "__main__":
-    recorder = VoiceRecorder()
-    
-    audio = recorder.record()
-    
-    # use pydub to play the audio file
-    from pydub import AudioSegment
-    from pydub.playback import play
-    
-    sound = AudioSegment.from_wav(audio)
-    play(sound)
     
 

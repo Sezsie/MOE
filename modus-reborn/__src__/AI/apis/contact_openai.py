@@ -3,12 +3,15 @@
 import openai
 from __src__.UTILS.utils import Utilities, DebuggingUtilities
 
-
 utils = Utilities()
 debug = DebuggingUtilities()
 dprint = debug.dprint
 
 api_key = Utilities.getOpenAIKey()
+
+# a class that handles all the agents that are created. this class is a singleton, so only one instance of it can exist at a time.
+# the basic concept is that the AIHandler manages all the agents that are created, and the agents themselves manage their own message logs and responses.
+# TODO(?): consider adding a merge function that combines the message logs of two agents, so that an agent can have context from another agent's interactions.
 
 class AIHandler:
     _instance = None
