@@ -1,85 +1,123 @@
-# a database class that has the ability to perform a semantic search on itself and return the most relevant result.
-
-# The database class will have the following methods:
-# - search: searches the database for a given query and returns the most relevant result
-# - add: adds a new entry to the database
-# - remove: removes an entry from the database
-# - update: updates an entry in the database
-# - get: retrieves an entry from the database
-# - get_all: retrieves all entries from the database
-# - clear: clears the database
-# - save: saves the database to disk
-# - load: loads the database from disk
-
 import os
-import sys
 import sqlite3
+import threading
+from __src__.AI.nlp.tiny_bert import TinyBERT
+from __src__.AI.nlp.classifier import RequestClassifier
 
 stored_path = os.path.join(os.getcwd(), 'modus-reborn', '__storage__')
+bert = TinyBERT()
+ml = RequestClassifier()
 
 class Database:
     def __init__(self):
-        # create the sqlite database if it does not exist
-        self.db = sqlite3.connect(stored_path + '/command_database.sqlite')
-        # create a cursor object to interact with the database
-        self.cursor = self.db.cursor()
-        # create the table if it does not exist
-        self.cursor.execute('''
+        self.local = threading.local()
+        self.db_path = stored_path + '/command_database.sqlite'
+        self.ensure_table()
+
+    def get_connection(self):
+        if not hasattr(self.local, 'connection'):
+            self.local.connection = sqlite3.connect(self.db_path, check_same_thread=False)
+            self.local.cursor = self.local.connection.cursor()
+        return self.local.connection, self.local.cursor
+
+    def ensure_table(self):
+        conn, cursor = self.get_connection()
+        cursor.execute('''
             CREATE TABLE IF NOT EXISTS commands(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 commandname TEXT,
-                associatedcode TEXT
+                associatedcode TEXT,
                 lastused TEXT
             )
         ''')
-        pass
-    
-    def search(self, query):
-        # search the database for the given query
-        self.cursor.execute('SELECT * FROM commands WHERE commandname LIKE ?', ('%' + query + '%',))
-        return self.cursor.fetchall()
-    
-    def modify(self, commandname, newcode):
-        # update the associated code for the given command
-        self.cursor.execute('UPDATE commands SET associatedcode = ? WHERE commandname = ?', (newcode, commandname))
-        self.save()
-        
-    def add(self, commandname, associatedcode):
-        # add a new entry to the database
-        self.cursor.execute('INSERT INTO commands(commandname, associatedcode) VALUES(?, ?)', (commandname, associatedcode))
-        self.save()
-        
-    def remove(self, commandname):
-        # remove an entry from the database
-        self.cursor.execute('DELETE FROM commands WHERE commandname = ?', (commandname,))
-        self.save()
-        
-    def get(self, commandname):
-        # retrieve an entry from the database
-        self.cursor.execute('SELECT * FROM commands WHERE commandname = ?', (commandname,))
-        return self.cursor.fetchone()
-    
-    def get_all(self):
-        # retrieve all entries from the database
-        self.cursor.execute('SELECT * FROM commands')
-        return self.cursor.fetchall()
-    
-    def clear(self):
-        # clear the database
-        self.cursor.execute('DELETE FROM commands')
-        self.save()
-    
-    def save(self):
-        # save the database to disk
-        self.db.commit()
-        
-        
+        conn.commit()
 
+    def search(self, query):
+        _, cursor = self.get_connection()
+        cursor.execute('SELECT * FROM commands WHERE commandname LIKE ?', ('%' + query + '%',))
+        return cursor.fetchall()
+
+    def modify(self, commandname, newcode):
+        conn, cursor = self.get_connection()
+        cursor.execute('UPDATE commands SET associatedcode = ? WHERE commandname = ?', (newcode, commandname))
+        conn.commit()
+
+    def add(self, commandname, associatedcode):
+        if self.get(commandname) is None:
+            conn, cursor = self.get_connection()
+            cursor.execute('INSERT INTO commands (commandname, associatedcode) VALUES (?, ?)', (commandname, associatedcode))
+            conn.commit()
+        else:
+            self.modify(commandname, associatedcode)
+
+    def remove(self, commandname):
+        conn, cursor = self.get_connection()
+        cursor.execute('DELETE FROM commands WHERE commandname = ?', (commandname,))
+        conn.commit()
+
+    def get(self, commandname):
+        _, cursor = self.get_connection()
+        cursor.execute('SELECT * FROM commands WHERE commandname = ?', (commandname,))
+        return cursor.fetchone()
+
+    def get_all(self):
+        _, cursor = self.get_connection()
+        cursor.execute('SELECT * FROM commands')
+        return cursor.fetchall()
+
+    def clear(self):
+        conn, cursor = self.get_connection()
+        cursor.execute('DELETE FROM commands')
+        conn.commit()
+        
+    def does_database_exist(self):
+        return os.path.exists(self.db_path)
+
+
+    # perform a semantic search on the database to find the most relevant command.
+    # the function first cleans and normalizes the query text. It then checks for a subset match, 
+    # where all words in a command are present in the cleaned query. If such a match is found, 
+    # the command is immediately returned. If no command words are a subset but there are common 
+    # words between any command and the query, the function proceeds to use BERT for 
+    # a deeper semantic analysis to identify the most similar command. If there are no common words 
+    # at all between the query and any command in the database, the function returns None, avoiding 
+    # unnecessary BERT computation.
+    def semantic_search(self, query):
+        all_commands = self.get_all()
+        if not all_commands:
+            return None
+        
+        # normalize the query to compare only the words it contains
+        query_words = set(query.lower().split())
+        
+        # prepare a dictionary mapping each command to its words set
+        command_dict = {command[1]: set(command[1].lower().split()) for command in all_commands}
+        
+        # initialize list to store commands with any common words
+        commands_with_common_words = []
+        
+        # check if any command's words have an intersection with the query words
+        for command, cmd_words in command_dict.items():
+            
+            print(f"Comparing word sets: {cmd_words} vs {query_words}")
+            if cmd_words & query_words:  # check for intersection
+                commands_with_common_words.append(command)
+                if cmd_words <= query_words:
+                    print(f"Matching command found in database: {command}")
+                    return command
+        
+        # if no verbatim or subset match is found but there are common words, use BERT to find the most similar command
+        if commands_with_common_words:
+            similarity, most_similar = bert.batch_similarity(query, commands_with_common_words)
+            print(f"Most similar command found by BERT: {most_similar}, with similarity: {similarity}")
+            return most_similar
+        else:
+            print("No common words found between the query and database commands.")
+            return None
 
 
 if __name__ == "__main__":
     db = Database()
     print("Database class created.")
     all = db.get_all()
-    # test the search function
     print(all)
