@@ -10,12 +10,32 @@
 #############################################################################################################
 import os
 
-import pandas as pd
 import pickle
 import re
 
 from __src__.UTILS.utils import Utilities, DebuggingUtilities
 
+# might as well import punkt
+import nltk
+
+# if punkt isnt installed, install it
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+    
+# get the stopwords
+try:
+    stopwords = nltk.corpus.stopwords.words('english')
+except LookupError:
+    nltk.download('stopwords')
+    
+# get the stemmer
+try:
+    stemmer = nltk.PorterStemmer()
+except LookupError:
+    nltk.download('stopwords')
+    stemmer = nltk.PorterStemmer()
 
 utils = Utilities()
 debug = DebuggingUtilities()
@@ -41,14 +61,16 @@ class RequestClassifier:
         text = re.sub(r'[^\w\s]', '', text)
         # make all text lowercase
         text = text.lower()
+        # remove stopwords
+        text = ' '.join([word for word in text.split() if word not in stopwords])
+        # stem the words
+        text = ' '.join([stemmer.stem(word) for word in text.split()])
         return text
         
     # classify the text data   
     def classify(self, text):
         # preprocess the text
         text = self.preprocess(text)
-        
-        print(f"Preprocessed Text: {text}")
         
         # if theres only one word, return conversational
         if len(text.split()) == 1:

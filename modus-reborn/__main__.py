@@ -12,12 +12,11 @@
 # PURPOSE: To make the user's life easier by automating tasks using natural language.
 #############################################################################################################
 
-
+print("MODUS is starting...")
 
 #############################################################################################################
 # IMPORTS AND GLOBALS
 #############################################################################################################
-import threading
 import os
 import sys
 
@@ -30,13 +29,11 @@ from __src__.AI.nlp.classifier import RequestClassifier
 from __src__.UTILS.utils import Utilities
 from __src__.UTILS.utils import DebuggingUtilities
 from __src__.IO.handle_ui import TextEditorUI, NamingUI
+from __src__.DATA.manage_database import Database
+from __src__.AI.apis.contact_openai import AIHandler
 
-from time import sleep
 from __src__.AI.agents.chat_to_modus import chat_with_modus
-from __src__.AI.agents.generate_with_codus import generate_with_codus, save_to_database, moderate_code
-
-import tkinter as tk
-from tkinter import simpledialog
+from __src__.AI.agents.generate_with_codus import generate_with_codus, moderate_code
 
 # import future
 from concurrent.futures import ThreadPoolExecutor
@@ -48,13 +45,17 @@ transcriber = AudioTranscriber()
 utils = Utilities()
 debug = DebuggingUtilities()
 ml = RequestClassifier()
+db = Database()
+ai = AIHandler.getInstance()
+MODUS = ai.getAgent("MODUS")
 
 dprint = debug.dprint 
 recording = False
 block_button = False
-app = None
 generate_code = False
+ran_once = False
 transcribedAudio = ""
+app = None
 
 # settings
 debug.setDebugMode(True)
@@ -84,16 +85,52 @@ def listenAndRecord():
     recording = False
     return audioFile
 
-# this is just a testing function that makes a simple dialog box to get text input from the user.
-# this is never used by the user, as the main form of interaction with MODUS is through voice commands.
-def get_text_w_UI():
-    root = tk.Tk()
-    root.withdraw()  # hide the main window (we just need the dialog)
-    
-    # this line pops up the dialog box, waits for input, then destroys the root window
-    user_input = simpledialog.askstring(title="Text Input", prompt="Type something here:")
+def regenerate_animation(ui):
+    new_text = generate_with_codus("Try that again in a completely different way.")
+    ui.load_text(new_text)
 
-  
+def display_save_UI(code = None):
+    app.editor_ui = NamingUI()
+    app.editor_ui.show()
+    app.editor_ui.add_button("Save", lambda: save_command(app.editor_ui, ml.preprocess(app.editor_ui.textEdit.toPlainText()), code), "Save the command to MODUS's internal database.") 
+
+def save_command(app, command = None, associated_code = None):
+    db.add(command, associated_code)
+    # close all windows
+    app.close()
+
+
+def manage_contexts(prediction, userSpeech, likely_command = None):
+    global generate_code
+    global ran_once
+    
+    ran_once = True
+    cleantext = ml.preprocess(userSpeech)
+    likely_command = db.semantic_search(cleantext)
+    
+    # functional contexts
+    # if a command is found, no need to generate code, just perform the command
+    if likely_command:
+        MODUS.addContext(f"Excitedly tell the user that you're on it.")
+        # if no command is found, generate code
+    else:
+        if prediction == "command" or userSpeech.lower().find("i want you to") != -1:
+            generate_code = True
+            MODUS.addContext("Inform the user that you'll try to do that. Ask them to double check the code on the screen.")
+        elif prediction == "conversational":
+            MODUS.addContext("""If the user's message is a computer-related command, please ask the user to rephrase their request. Give them hints, such as including the phrase 'I want you to'. Otherwise, just chat with the user.""")
+            
+    # finally, now that contexts have been set, chat with the user in a separate thread
+    chat_with_modus(userSpeech)
+    
+    if likely_command:
+        # execute the command if found
+        moderate_code(db.get(likely_command)[2])
+        
+    # wipe the system messages so that the AI will not get its responses confused
+    MODUS.wipeSystemMessages()
+    
+
 #############################################################################################################
 # MAIN
 #############################################################################################################
@@ -124,45 +161,24 @@ def main(string = None):
         
         # discard the audio file since it is no longer needed.
         os.remove(recordedAudio)
-        
-    # otherwise, the user has provided text input.
-    else:
-        transcribedAudio = string
     
     prediction = ml.classify(transcribedAudio)
     
-    # chat with MODUS in a separate thread while CODUS processes the user's requests.
-    # CODUS is branched through the generate_with_codus function, which is called in the chat_with_modus function.
-    thread = threading.Thread(target=chat_with_modus, args=[transcribedAudio])
-    thread.start()
-    
-    # if the prediction is command or user's message contains "I want you to", generate code with CODUS
-    if prediction == "command" or transcribedAudio.lower().find("i want you to") != -1:
-        generate_code = True
+    # manage the context of the conversation based on the prediction and other factors
+    manage_contexts(prediction, transcribedAudio)
 
-print("MODUS is running...")
-Handler = HotkeyHandler("alt+m", main)
-
-def regenerate_animation(ui):
-    new_text = generate_with_codus("Try that again in a completely different way.")
-    ui.load_text(new_text)
+if __name__ == "__main__":  
+    # aesthetic contexts
+    # if the database has no commands, add context to MODUS to let them know that they are meeting the user for the first time
+    if not db.get_all() and not ran_once:
+        MODUS.addContext("This is the first time you are meeting the user. Tell them that right now, you don't know very much, but that can change with their help.")
+    else:
+        MODUS.addContext("Excitedly welcome the user back somewhere in your response.") 
     
-def display_command_name():
-    app.editor_ui = NamingUI()
-    app.editor_ui.show()
-    app.editor_ui.add_button("Save", lambda: save_command(app), "Save the command to MODUS's internal database.")
-    
-def save_command(app):
-    # save the text in a variable
-    command = app.editor_ui.textEdit.toPlainText()
-    # close all open windows
-    app.editor_ui.close()
-    app.ui.close()
-    print(f"Saved command: {command}")
-    
-
-if __name__ == "__main__":
-    
+    # create a HotkeyHandler instance with the hotkey "alt+m" and the main function as the callback
+    print("MODUS is running...")
+    Handler = HotkeyHandler("alt+m", main)
+        
     # keep the program running with a UI loop
     while True:
         # if QApplication has not been initialized, initialize it
@@ -174,22 +190,22 @@ if __name__ == "__main__":
             ui.change_window_title("Generated Code (Click to Edit)")
             # set size of window
             ui.set_size(800, 600)
-            # button that regens code in a different way
+            # button that regenerates different code to satisfy the user's request
             ui.add_button("Regenerate", lambda: regenerate_animation(ui), "Regenerate the code in a different way (WARNING: MAY FREEZE THE UI FOR A FEW SECONDS).")
             # execute code currently in editor
             ui.add_button("Execute", lambda: moderate_code(ui.textEdit.toPlainText()), "Execute the code currently in the editor.")
             # save the code in the editor to MODUS's internal database and execute it
-            ui.add_button("Save and Execute", lambda: display_command_name(), "Save the code to MODUS's internal database and execute it.")
+            ui.add_button("Save", lambda: display_save_UI(ui.textEdit.toPlainText()), "Save the code so MODUS can remember it for later.")
 
         if generate_code:
             generate_code = False
             ui.load_text("Loading...")
             QApplication.processEvents()
-            ui = app.ui
-            print(f"Current Text: {ui.textEdit.toPlainText()}")
-            # load text into separate thread
+            
+            # load text in a separate thread
             with ThreadPoolExecutor(max_workers=1) as executor:
                 future = executor.submit(generate_with_codus, transcribedAudio)
-                future.add_done_callback(lambda fut: ui.load_text(fut.result()))  
+                future.add_done_callback(lambda fut: ui.load_text(fut.result()))
+                
             ui.show()
             app.exec()

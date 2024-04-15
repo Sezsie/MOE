@@ -10,7 +10,7 @@ from __src__.IO.code_executor import CodeExecutor
 # globals
 utils = Utilities()
 debug = DebuggingUtilities()
-ai = AIHandler()
+ai = AIHandler.getInstance()
 executor = CodeExecutor()
 OS = utils.getOS()
 
@@ -81,7 +81,6 @@ def save_to_database(code):
 # moderates the code. if the code has any keywords that could be harmful, it will be rejected.
 def moderate_code(code):
     # TODO: Implement code moderation
-    print(f"Moderating code: {code}")
     print("CODE MODERATION IS NOT IMPLEMENTED YET.")
     # execute the code for now  
     executor.execute_code(code)
@@ -98,7 +97,7 @@ def generate_with_codus(userSpeech):
     debug.startTimer("CODUSResponseTime")
     code = generate_code(userSpeech)
     if code:
-        print(f"Extracted Code: {code}")
+        pass
     else:
         print("ERROR: No code found.")
      

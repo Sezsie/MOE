@@ -11,19 +11,28 @@ dprint = debug.dprint
 api_key = Utilities.getOpenAIKey()
 
 class AIHandler:
-    # initialize the AIHandler class with the API key.
-    # AIHandler is the main class that handles all created agents, with a suite of functions to create, delete, and get agents.
+    _instance = None
+
+    @staticmethod 
+    def getInstance():
+        if AIHandler._instance is None:
+            AIHandler()
+        return AIHandler._instance
+
     def __init__(self):
-        openai.api_key = api_key
-        self.client = openai
-        self.agents = {}
+        if AIHandler._instance is not None:
+            raise Exception("This class is a singleton!")
+        else:
+            openai.api_key = api_key
+            self.client = openai
+            self.agents = {}
+            AIHandler._instance = self
     
     # create an agent with the given name, model, and system prompt. the agent remembers its name and previous messages.
     def createAgent(self, agentname, agentmodel, systemprompt):
         self.agents[agentname] = Agent(agentname, agentmodel, systemprompt, self.client)
         return self.agents[agentname] 
     
-    # get a particular agent by name
     def getAgent(self, agentname):
         if agentname in self.agents:
             return self.agents[agentname]
@@ -63,7 +72,7 @@ class Agent:
     def __init__(self, agentname, inputmodel, systemprompt, newClient):
         systemprompt = "Your name is " + agentname + ". " + systemprompt
         
-        self.ai_handler = AIHandler()
+        self.ai_handler = AIHandler.getInstance()
         self.message_logs = [{"role": "system", "content": systemprompt}]
         self.model = inputmodel
         self.client = newClient
@@ -121,7 +130,7 @@ class Agent:
 
     def legacy_chat(self):
         
-        # Generating the prompt for the legacy chat completion
+        # generating the prompt for the legacy chat completion
         prompt = "\n".join([msg["content"] for msg in self.message_logs])
         
         response = self.client.completions.create(
@@ -130,7 +139,7 @@ class Agent:
             max_tokens=2048 
         )
         
-        # Extracting the response and usage information
+        # extracting the response and usage information
         agentResponse = response.choices[0].text
 
         return agentResponse
@@ -151,14 +160,26 @@ class Agent:
         
         return totalString
     
+    # add a one-shot context to the AI's responses.
     def addContext(self, message):
         dprint(f"Context Added: {message}") 
         self.message_logs.append({"role": "system", "content": "Context: " + message})
     
-    # deletes all currently stored syetem messages, except for the first one (the first one is what sets the AI's personality and rules.)
+    # deletes all currently stored system messages, except for the first one (the first one is what sets the AI's personality and rules.)
     def wipeSystemMessages(self):
         self.message_logs = self.message_logs[:1]
         
     # sometimes neccessary to reinforce format
     def addAssistantMessage(self, message):
         self.message_logs.append({"role": "assistant", "content": message})
+        
+
+if __name__ == "__main__":
+    # get the MODUS agent
+    ai = AIHandler()
+    MODUS = ai.getAgent("MODUS")
+    # if the agent does not exist print an error message
+    if MODUS is None:
+        print("MODUS agent does not exist.")
+    else:
+        print("MODUS agent found.")
