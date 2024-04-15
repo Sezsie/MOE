@@ -18,6 +18,9 @@ dprint = debug.dprint
 
 api_key = Utilities.getOpenAIKey()
 
+# a class that is linked to a temporary audio file.
+# when the audio file is played, it is deleted after it finishes playing.
+
 class TemporaryAudio:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -34,6 +37,8 @@ class TemporaryAudio:
         pygame.mixer.music.unload()  # Unload the audio file
         os.remove(self.file_path)  # Delete file after playing
 
+
+# a class that generates speech from text using the OpenAI API.
 class SpeechGenerator:
     def __init__(self, model='tts-1'):
         self.client = openai
@@ -50,7 +55,7 @@ class SpeechGenerator:
             raise ValueError(f"Voice '{voice}' not supported. Choose from {self.voices}")
         debug.startTimer("SpeechGeneration")
 
-        speech_file_path = files.getProjectDirectory() + f"\\__bin__\\{voice}_speech.mp3"
+        speech_file_path = files.getProjectDirectory() + f"\\__bin__\\{voice}_speech.mp3" # TODO: I dont think this is a cross-platform solution! change this to use os.path.join instead!
         response = self.client.audio.speech.create(
             model=self.model,
             voice=voice,

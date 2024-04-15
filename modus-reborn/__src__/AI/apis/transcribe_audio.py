@@ -7,6 +7,7 @@ utils = Utilities()
 debug = DebuggingUtilities()
 dprint = debug.dprint
 
+# this is the class that is responsible for transcribing audio files using the OpenAI API.
 class AudioTranscriber:
     def __init__(self):
         key = api_key

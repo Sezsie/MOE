@@ -2,6 +2,8 @@ import sys
 from PySide6.QtWidgets import QApplication, QWidget, QTextEdit, QPushButton, QVBoxLayout, QLabel
 from PySide6.QtCore import Qt, Signal
 
+# a collection of classes that handle the UI of MODUS
+
 class BaseUI(QWidget):
     def __init__(self):
         super().__init__()

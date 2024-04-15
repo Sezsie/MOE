@@ -1,7 +1,7 @@
 # imports
 import re
 
-from time import sleep
+from concurrent.futures import ThreadPoolExecutor
 from __src__.AI.apis.contact_openai import AIHandler
 from __src__.UTILS.utils import Utilities
 from __src__.UTILS.utils import DebuggingUtilities
@@ -14,10 +14,11 @@ ai = AIHandler.getInstance()
 executor = CodeExecutor()
 OS = utils.getOS()
 
-# import future
-from concurrent.futures import ThreadPoolExecutor
+# this script is designed to generate code using the CODUS AI agent (powered by OpenAI's GPT-4 Turbo model).
+# it has a wide range of functions designed to generate code based on the user's input and the current operating system.
 
 agentName = "CODUS"
+# I chose the GPT-4 Turbo model because it tends to generate more detailed and accurate code. The only downside is that it generates code at a snail's pace compared to the other models.
 agentModel = "gpt-4-turbo"
 agentPrompt = f"""
 You are now the Code-Oriented Directed Utility System, casually known as CODUS.  
@@ -77,6 +78,7 @@ def extract_code(text):
 # save to database
 def save_to_database(code):
     print("Implement save to database functionality here.")
+
 
 # moderates the code. if the code has any keywords that could be harmful, it will be rejected.
 def moderate_code(code):

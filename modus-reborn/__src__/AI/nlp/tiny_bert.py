@@ -1,14 +1,15 @@
 import torch
-import re
 from transformers import AutoTokenizer, AutoModel
 from __src__.AI.nlp.classifier import RequestClassifier
 
-# load TinyBERT tokenizer and model
+# a class that uses TinyBERT to get embeddings and calculate similarity between texts
+# I might extend this class to include more functionality in the future, but for now it's just for getting embeddings and calculating similarity
+
+# load TinyBERT tokenizer and model (a pretrained model since I don't have the time to train one myself right now)
 tok = AutoTokenizer.from_pretrained('huawei-noah/TinyBERT_General_4L_312D')
 mod = AutoModel.from_pretrained('huawei-noah/TinyBERT_General_4L_312D')
 
 classifier = RequestClassifier()
-
 
 class TinyBERT:
     def __init__(self):
@@ -87,26 +88,5 @@ class TinyBERT:
         else:
             return max_similarity, texts[most_similar_index]
 
-
-
-    
-
-if __name__ == "__main__":
-    # create an instance of the TinyBERT class
-    tiny_bert = TinyBERT()
-    
-    # define a new text
-    new_text = "open firefox"
-    
-    texts = ["could you launch firefox for me?", "open notepad", "open file"]
-    
-    # get the similarity between the new text and each text in the list
-    similarity_score, most_similar = tiny_bert.batch_similarity(new_text, texts)
-    
-    if similarity_score is not None:
-        print(f"The most similar text is: {most_similar}")
-        print(f"The similarity score is: {similarity_score}")
-    else:
-        print("No text was sufficiently similar.")
 
     
