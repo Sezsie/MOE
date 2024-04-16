@@ -33,7 +33,9 @@ class Utilities:
 
     @staticmethod
     def getOpenAIKey():
-        api_key_file_path = FileUtilities.getProjectDirectory() + "\\__auth__\\api-key.txt" # once again, not cross-platform! TODO: fix this
+        # use getprojectdirectory to get the project directory
+        print(FileUtilities.getProjectDirectory())
+        api_key_file_path = os.path.join(FileUtilities.getProjectDirectory(), "__auth__", "api-key.txt")
         
         # check if the file exists
         if not os.path.exists(api_key_file_path):
@@ -99,10 +101,14 @@ class DebuggingUtilities:
   
             
 class FileUtilities:
-    # simply returns the topmost directory of the project
     @staticmethod
-    def getProjectDirectory():
-        return os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    # starting at this file, get the project directory with a certain name
+    def getProjectDirectory(name="modus-reborn"):
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        while os.path.basename(current_dir) != name:
+            current_dir = os.path.dirname(current_dir)
+        return current_dir
+        
     
     @staticmethod
     def scheduleRemoval(file, time):
