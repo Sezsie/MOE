@@ -134,9 +134,9 @@ def manage_contexts(prediction, userSpeech, likely_command = None):
     else:
         if prediction == "command" or userSpeech.lower().find("i want you to") != -1:
             generate_code = True
-            MODUS.addContext("Inform the user that you'll try to do that. Ask them to double check the code on the screen.")
+            MODUS.addContext("Say 'I can do that' then ask the user to double check the code on the screen.")
         elif prediction == "conversational":
-            MODUS.addContext("""If the user's message is a computer-related command, give them hints, such as including the phrase 'I want you to' in their query. Otherwise, just chat with the user.""")
+            MODUS.addContext("""If the user's message is a computer-related command, ask them to rephrase their query. Otherwise, just chat with the user.""")
             
     # finally, now that contexts have been set, chat with the user in a separate thread
     chat_with_modus(userSpeech)
@@ -148,6 +148,19 @@ def manage_contexts(prediction, userSpeech, likely_command = None):
     # wipe the system messages so that the AI will not get its responses confused
     MODUS.wipeSystemMessages()
     
+    
+# a simple aesthetic function that has MODUS introduce/greet the user upon startup
+def intro():
+    # aesthetic contexts
+    if not db.get_all():
+        # TODO: branch to some first-time user message stuff here
+        MODUS.addContext("This is the first time you are meeting the user. Introduce yourself, and tell the user that they can get started by asking you to do something.") 
+        pass
+    else:
+        MODUS.addContext("Briefly welcome the user back somewhere in your response with an excited tone.") 
+      
+    # upon starting, greet the user  
+    chat_with_modus("Perform the action described above system message.")  
 
 #############################################################################################################
 # MAIN
@@ -191,17 +204,6 @@ if __name__ == "__main__":
     # create a HotkeyHandler instance with the hotkey "alt+m" and the main function as the callback
     print("MODUS is running...")
     Handler = HotkeyHandler("alt+m", main)
-    
-    # aesthetic contexts
-    if not db.get_all():
-        # TODO: branch to some first-time user message stuff here
-        MODUS.addContext("This is the first time you are meeting the user. Introduce yourself, and tell the user that they can get started by asking you to do something.") 
-        pass
-    else:
-        MODUS.addContext("Briefly welcome the user back somewhere in your response with an excited tone.") 
-      
-    # upon starting, greet the user  
-    chat_with_modus("Perform the action described above system message.")
         
     # keep the program running with a UI loop
     while True:
