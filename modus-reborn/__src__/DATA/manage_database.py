@@ -109,7 +109,7 @@ class Database:
         
         # if no verbatim or subset match is found but there are common words, use BERT to find the most similar command
         if commands_with_common_words:
-            similarity, most_similar = bert.batch_similarity(query, commands_with_common_words)
+            similarity, most_similar = bert.batch_similarity(query, commands_with_common_words, .75)
             print(f"Most similar command found by BERT: {most_similar}, with similarity: {similarity}")
             return most_similar
         else:
