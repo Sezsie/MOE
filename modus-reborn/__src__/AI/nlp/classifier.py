@@ -9,10 +9,11 @@
 #############################################################################################################
 
 import os
+
 import pickle
 import re
 
-from __src__.UTILS.utils import Utilities, DebuggingUtilities, FileUtilities
+from __src__.UTILS.utils import Utilities, DebuggingUtilities
 
 # might as well import punkt
 import nltk
@@ -50,7 +51,7 @@ class RequestClassifier:
         
     # load the model from the saved pickle file
     def loadModel(self):
-        dir = os.path.join(FileUtilities.getProjectDirectory(), "__ml__")
+        dir = os.path.join("modus-reborn", "__ml__")
         self.classifier = pickle.load(open(os.path.join(dir, "MODUS_MODEL.pkl"), "rb"))
         self.vectorizer = pickle.load(open(os.path.join(dir, "MODUS_VECTORIZER.pkl"), "rb"))
       

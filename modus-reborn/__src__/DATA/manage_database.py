@@ -3,16 +3,15 @@ import sqlite3
 import threading
 from __src__.AI.nlp.tiny_bert import TinyBERT
 from __src__.AI.nlp.classifier import RequestClassifier
-from __src__.UTILS.utils import Utilities, DebuggingUtilities, FileUtilities
 
-stored_path = os.path.join(FileUtilities.getProjectDirectory(), "__storage__", "command_database.sqlite")
+stored_path = os.path.join(os.getcwd(), 'modus-reborn', '__storage__')
 bert = TinyBERT()
 ml = RequestClassifier()
 
 class Database:
     def __init__(self):
         self.local = threading.local()
-        self.db_path = stored_path
+        self.db_path = stored_path + '/command_database.sqlite'
         self.ensure_table()
 
     def get_connection(self):
