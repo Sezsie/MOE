@@ -2,6 +2,7 @@
 
 import os 
 import subprocess
+import threading
 
 from __src__.UTILS.utils import Utilities
 
@@ -13,11 +14,16 @@ class CodeExecutor:
         pass
 
     def execute_code(self, code):
+        thread = None
+        
         print(f"Executing code: {code}")
+        # in separate threads, execute the code based on the user's operating system
         if OS == "Windows":
-            return self.execute_windows_code(code)
+            thread = threading.Thread(target=self.execute_windows_code, args=(code,))
         else:
-            return self.execute_linux_code(code)
+            thread = threading.Thread(target=self.execute_linux_code, args=(code,))
+            
+        thread.start()
 
     def execute_windows_code(self, code):
         try:
