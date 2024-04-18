@@ -93,8 +93,10 @@ def listenAndRecord():
     return audioFile
 
 def regenerate_animation(ui):
-    new_text = generate_with_codus("Try that again in a completely different way.")
-    ui.load_text(new_text)
+    # spawn in a new thread
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(generate_with_codus, transcribedAudio)
+        future.add_done_callback(lambda fut: ui.load_text(fut.result()))
 
 def display_save_UI(code = None):
     app.editor_ui = NamingUI()
@@ -136,7 +138,7 @@ def manage_contexts(prediction, userSpeech, likely_command = None):
             generate_code = True
             MODUS.addContext("Inform the user that you'll try to do that. Ask them to double check the code on the screen.")
         elif prediction == "conversational":
-            MODUS.addContext("""If the user's message is a computer-related command, give them hints, such as including the phrase 'I want you to' in their query. Otherwise, just chat with the user.""")
+            MODUS.addContext("""If the user's message is a computer-related command kindly ask them to rephrase their request. Otherwise, just chat with the user.""")
             
     # finally, now that contexts have been set, chat with the user in a separate thread
     chat_with_modus(userSpeech)
