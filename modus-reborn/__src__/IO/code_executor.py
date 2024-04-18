@@ -17,8 +17,6 @@ class CodeExecutor:
     def execute_code(self, code):
         print(f"Executing code: {code}")
         if OS == "Windows":
-            # remove the pause keyword from the code if it exists
-            code = code.replace("pause", "")
             return self.execute_windows_code(code)
         else:
             return self.execute_linux_code(code)
@@ -27,12 +25,12 @@ class CodeExecutor:
         try:
             with open("modus-reborn\\__bin__\\temp.bat", "w") as f:
                 f.write(code)
-            process = subprocess.Popen(["cmd", "/c", "modus-reborn\\__bin__\\temp.bat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output, error = process.communicate()
+            # Start the batch file in a new window
+            process = subprocess.Popen(["start", "cmd", "/c", "modus-reborn\\__bin__\\temp.bat"], shell=True)
+            process.wait()  # Optionally wait for the command to complete
             os.remove("modus-reborn\\__bin__\\temp.bat")
-            return output.decode("utf-8")
+            return "Executed in a new window."
         except Exception as e:
-            print(e)
             return str(e)
 
 
