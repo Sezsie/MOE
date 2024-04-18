@@ -75,11 +75,6 @@ def extract_code(text):
             return re.sub(r"batch|bash|bat", "", code_match.group(1))
     return None
 
-# save to database
-def save_to_database(code):
-    print("Implement save to database functionality here.")
-
-
 # moderates the code. if the code has any keywords that could be harmful, it will be rejected.
 def moderate_code(code):
     # TODO: Implement code moderation
