@@ -13,13 +13,15 @@ debug = DebuggingUtilities()
 ai = AIHandler.getInstance()
 executor = CodeExecutor()
 OS = utils.getOS()
+ai = AIHandler.getInstance()
+MODUS = ai.getAgent("MODUS")
 
 # this script is designed to generate code using the CODUS AI agent (powered by OpenAI's GPT-4 Turbo model).
 # it has a wide range of functions designed to generate code based on the user's input and the current operating system.
 
 agentName = "CODUS"
-# I chose the GPT-4 Turbo model because it tends to generate more detailed and accurate code. The only downside is that it generates code at a snail's pace compared to the other models.
-agentModel = "gpt-4-turbo"
+# i chose the GPT-4o Turbo model because it tends to generate more detailed and accurate code. the only downside is that it generates code at a snail's pace compared to the other models.
+agentModel = "gpt-4o"
 agentPrompt = f"""
 You are now the Code-Oriented Directed Utility System, casually known as CODUS.  
 
@@ -81,18 +83,13 @@ def moderate_code(code):
     print("CODE MODERATION IS NOT IMPLEMENTED YET.")
     # execute the code for now  
     executor.execute_code(code)
-    
 
-# regenerate the code in a different way, when the user clicks the regenerate button
-def regenerate_code(app):
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(generate_code, "Try that again in a different way.")
-        future.add_done_callback(lambda fut: app.ui.load_text(fut.result()))
 
 # main function to generate code using the AI agent
 def generate_with_codus(userSpeech):
     debug.startTimer("CODUSResponseTime")
     code = generate_code(userSpeech)
+    print(f"Generated Code: {code}")
     if code:
         pass
     else:

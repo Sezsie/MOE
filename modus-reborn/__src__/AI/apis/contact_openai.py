@@ -84,11 +84,7 @@ class Agent:
     # so openai has a limit on how many tokens it can use as context. this function checks if the message logs have too many characters.
     # if the message logs strings have too many tokens, it will remove the oldest non-system messages until the message logs have less than a max amount of characters.
     def check_message_logs(self):
-        
-        # every token is equal to 5 characters, roundabout, so we will use that as a basis for the max amount of tokens.
-        # the max amount of tokens for gpt-3.5-turbo is 2048 or so, so we will use 2000 as the max amount of tokens to be safe.
-        # we multiply the max amount of tokens by 5 to convert to the max amount of characters, which is easier to check.
-        max_tokens = 4000 * 5 # about 20000 characters
+        max_tokens = 1000 * 5 # about 5000 characters
 
         # get the message logs
         message_logs = self.message_logs
@@ -162,15 +158,19 @@ class Agent:
             totalString += f"{header}\n" + response + "\n"
         
         return totalString
+
+    def returnMessageLogs(self):
+        return self.message_logs
     
     # add a one-shot context to the AI's responses.
     def addContext(self, message):
         dprint(f"Context Added: {message}") 
         self.message_logs.append({"role": "system", "content": "Context: " + message})
     
-    # deletes all currently stored system messages, except for the first one (the first one is what sets the AI's personality and rules.)
-    def wipeSystemMessages(self):
+    # deletes all currently stored messages in the agent's memory, excluding the first system message.
+    def wipeMemory(self):
         self.message_logs = self.message_logs[:1]
+
         
     # sometimes neccessary to reinforce format
     def addAssistantMessage(self, message):
