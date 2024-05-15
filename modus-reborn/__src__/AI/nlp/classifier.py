@@ -54,6 +54,7 @@ class RequestClassifier:
         dir = os.path.join("modus-reborn", "__ml__")
         self.classifier = pickle.load(open(os.path.join(dir, "MODUS_MODEL.pkl"), "rb"))
         self.vectorizer = pickle.load(open(os.path.join(dir, "MODUS_VECTORIZER.pkl"), "rb"))
+        self.pca = pickle.load(open(os.path.join(dir, "MODUS_PCA.pkl"), "rb"))
       
     # preprocess the text data  
     def preprocess(self, text):
@@ -62,24 +63,22 @@ class RequestClassifier:
         # make all text lowercase
         text = text.lower()
         # remove stopwords
-        text = ' '.join([word for word in text.split() if word not in stopwords])
+        # text = ' '.join([word for word in text.split() if word not in stopwords])
         # stem the words
-        text = ' '.join([stemmer.stem(word) for word in text.split()])
+        # text = ' '.join([stemmer.stem(word) for word in text.split()])
         return text
-        
-    # classify the text data   
+         
+    # classify the input text as either a command or conversational
     def classify(self, text):
-        # preprocess the text
-        text = self.preprocess(text)
-        
-        # if theres only one word, return conversational
-        if len(text.split()) == 1:
-            return "conversational"
-        
-        # vectorize the text
-        vectorized_text = self.vectorizer.transform([text])
-        # classify the text
-        prediction = self.classifier.predict(vectorized_text)
+        # preprocess and vectorize the text
+        preprocessed_text = self.preprocess(text)
+        vectorized_text = self.vectorizer.transform([preprocessed_text])
+    
+        # reduce the dimensionality to match the model's expected input
+        reduced_text = self.pca.transform(vectorized_text.toarray())
+    
+        # predict
+        prediction = self.classifier.predict(reduced_text)
 
         # return the classification
         if prediction[0] == 0:

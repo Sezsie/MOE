@@ -84,7 +84,7 @@ def listenAndRecord():
     # round off duration to 1 decimal place.
     duration = round(duration, 1)
 
-    if duration <= 1.5:
+    if duration <= 1:
         recording = False
         return "too short"
     
@@ -95,7 +95,7 @@ def listenAndRecord():
 def regenerate_animation(ui):
     # spawn in a new thread
     with ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(generate_with_codus, transcribedAudio)
+        future = executor.submit(generate_with_codus, "Try that again with a different approach.")
         future.add_done_callback(lambda fut: ui.load_text(fut.result()))
 
 def display_save_UI(code = None):
@@ -138,7 +138,7 @@ def manage_contexts(prediction, userSpeech, likely_command = None):
             generate_code = True
             MODUS.addContext("Inform the user that you'll try to do that. Ask them to double check the code on the screen.")
         elif prediction == "conversational":
-            MODUS.addContext("""If the user's message is a computer-related command kindly ask them to rephrase their request. Otherwise, just chat with the user.""")
+            MODUS.addContext("""If the user's current message is a computer-related command kindly ask them to rephrase their request to be longer. Otherwise, just chat with the user.""")
             
     # finally, now that contexts have been set, chat with the user in a separate thread
     chat_with_modus(userSpeech)
@@ -146,9 +146,6 @@ def manage_contexts(prediction, userSpeech, likely_command = None):
     if likely_command:
         # execute the command if found
         moderate_code(db.get(likely_command)[2])
-        
-    # wipe the system messages so that the AI will not get its responses confused
-    MODUS.wipeSystemMessages()
     
 
 #############################################################################################################
@@ -176,6 +173,7 @@ def main(string = None):
         # if the audio file was too short, print a message and return
         if recordedAudio == "too short":
             print("Audio file too short. Please try again.")
+            os.remove(recordedAudio)
             return
         
         # transcribe the audio and print the result
@@ -200,7 +198,7 @@ if __name__ == "__main__":
         MODUS.addContext("This is the first time you are meeting the user. Introduce yourself, and tell the user that they can get started by asking you to do something.") 
         pass
     else:
-        MODUS.addContext("Briefly welcome the user back somewhere in your response with an excited tone.") 
+        MODUS.addContext("Address the user back by welcoming them back somewhere in your response with an excited tone.") 
       
     # upon starting, greet the user  
     chat_with_modus("Perform the action described above system message.")
