@@ -1,19 +1,17 @@
 # imports
 import re
+from time import sleep
 
-from concurrent.futures import ThreadPoolExecutor
 from __src__.AI.apis.contact_openai import AIHandler
-from __src__.UTILS.utils import Utilities
-from __src__.UTILS.utils import DebuggingUtilities
+from __src__.DATA.manage_files import FileManager
 from __src__.IO.code_executor import CodeExecutor
 
+files = FileManager()
+OS = files.OS
+
 # globals
-utils = Utilities()
-debug = DebuggingUtilities()
 ai = AIHandler.getInstance()
 executor = CodeExecutor()
-OS = utils.getOS()
-ai = AIHandler.getInstance()
 MODUS = ai.getAgent("MODUS")
 
 # this script is designed to generate code using the CODUS AI agent (powered by OpenAI's GPT-4 Turbo model).
@@ -77,17 +75,9 @@ def extract_code(text):
             return re.sub(r"batch|bash|bat", "", code_match.group(1))
     return None
 
-# moderates the code. if the code has any keywords that could be harmful, it will be rejected.
-def moderate_code(code):
-    # TODO: Implement code moderation
-    print("CODE MODERATION IS NOT IMPLEMENTED YET.")
-    # execute the code for now  
-    executor.execute_code(code)
-
 
 # main function to generate code using the AI agent
 def generate_with_codus(userSpeech):
-    debug.startTimer("CODUSResponseTime")
     code = generate_code(userSpeech)
     print(f"Generated Code: {code}")
     if code:

@@ -4,18 +4,14 @@ import math
 import time
 import struct
 
-from __src__.UTILS.utils import Utilities
-from __src__.UTILS.utils import DebuggingUtilities
-from __src__.UTILS.utils import FileUtilities
+from __src__.DATA.manage_files import FileManager
 
-utils = Utilities()
-debug = DebuggingUtilities()
-files = FileUtilities()
+files = FileManager()
 
 # this class is used to record audio from the user's microphone while they are speaking. it will stop recording when there has been silence for a certain amount of time.
 
-# note from future me: holy CRAP this class is messy.
-# TODO: rebuild this class from scratch with sensitivity settings, mic input settings, etc etc.
+# note from past me: holy CRAP this class is messy.
+# TODO: rework this class to record for as long as the user holds the hotkey down.
 
 class VoiceRecorder:
     def __init__(self):
@@ -96,7 +92,7 @@ class VoiceRecorder:
         # save the recording
         filename = "recording_" + time.strftime("%Y%m%d-%H%M%S") + ".wav"
         # move the file to modus-main\Include\bin
-        filename = files.getProjectDirectory() + "\\__bin__\\" + filename
+        filename = files.createFile(files.locateDirectory("temp"), filename)
 
         
         wf = wave.open(filename, 'wb')

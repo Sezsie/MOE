@@ -1,13 +1,17 @@
 
 
 import openai
-from __src__.UTILS.utils import Utilities, DebuggingUtilities
+# import the sleep function from the time module
+from time import sleep
+from __src__.UTILS.utils import DebuggingUtilities
+from __src__.DATA.manage_files import FileManager
 
-utils = Utilities()
+# import threads for multithreading
+import threading
+
 debug = DebuggingUtilities()
+files = FileManager()
 dprint = debug.dprint
-
-api_key = Utilities.getOpenAIKey()
 
 # a class that handles all the agents that are created. this class is a singleton, so only one instance of it can exist at a time.
 # the basic concept is that the AIHandler manages all the agents that are created, and the agents themselves manage their own message logs and responses.
@@ -26,11 +30,12 @@ class AIHandler:
         if AIHandler._instance is not None:
             raise Exception("This class is a singleton!")
         else:
-            openai.api_key = api_key
+            # Start a new thread that will set the OpenAI key
+            openai.api_key = files.getOpenAIKey()
             self.client = openai
             self.agents = {}
             AIHandler._instance = self
-    
+        
     # create an agent with the given name, model, and system prompt. the agent remembers its name and previous messages.
     def createAgent(self, agentname, agentmodel, systemprompt):
         self.agents[agentname] = Agent(agentname, agentmodel, systemprompt, self.client)

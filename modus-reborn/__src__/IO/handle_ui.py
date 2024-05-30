@@ -2,6 +2,8 @@ import sys
 from PySide6.QtWidgets import QApplication, QWidget, QTextEdit, QPushButton, QVBoxLayout, QLabel
 from PySide6.QtCore import Qt, Signal
 
+app = QApplication(sys.argv)
+
 # a collection of classes that handle the UI of MODUS
 
 class BaseUI(QWidget):
@@ -11,6 +13,7 @@ class BaseUI(QWidget):
         self.layout = QVBoxLayout(self)
         self.setLayout(self.layout)
         self.set_size(300, 300)
+        self.app = app
 
     def set_size(self, width, height):
         screen_size = self.screen.size()
@@ -62,9 +65,33 @@ class NamingUI(BaseUI):
 
     def clear_text(self):
         self.textEdit.clear()
+        
+    def change_label(self, text):
+        self.label.setText(text)
 
     def print_text(self):
         print(self.textEdit.toPlainText())
+
+    def add_button(self, name, action, tooltip=None):
+        button = QPushButton(name)
+        button.clicked.connect(action)
+        if tooltip:
+            button.setToolTip(tooltip)
+        self.layout.addWidget(button)
+    
+    
+# confirmation dialog that simply displays two buttons with a message.    
+class ConfirmationUI(BaseUI):
+    def __init__(self):
+        super().__init__()
+        self.label = QLabel("Would you like to continue?")
+        self.layout.addWidget(self.label)
+        
+    def clear_text(self):
+        self.textEdit.clear()
+        
+    def set_label(self, text):
+        self.label.setText(text)
 
     def add_button(self, name, action, tooltip=None):
         button = QPushButton(name)

@@ -13,8 +13,6 @@ import os
 import pickle
 import re
 
-from __src__.UTILS.utils import Utilities, DebuggingUtilities
-
 # might as well import punkt
 import nltk
 
@@ -36,10 +34,6 @@ try:
 except LookupError:
     nltk.download('stopwords')
     stemmer = nltk.PorterStemmer()
-
-utils = Utilities()
-debug = DebuggingUtilities()
-dprint = debug.dprint
 
 class RequestClassifier:
     # initialize the AIHandler class with the API key.

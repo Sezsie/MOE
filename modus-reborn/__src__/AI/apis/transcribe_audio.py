@@ -1,9 +1,10 @@
 import requests
 
 from __src__.UTILS.utils import Utilities, DebuggingUtilities
+from __src__.DATA.manage_files import FileManager
 
-api_key = Utilities.getOpenAIKey()
-utils = Utilities()
+files = FileManager()
+api_key = files.getOpenAIKey()
 debug = DebuggingUtilities()
 dprint = debug.dprint
 
