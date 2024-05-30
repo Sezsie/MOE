@@ -8,15 +8,11 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import time
 import openai
 import pygame
+from __src__.DATA.manage_files import FileManager
 
-from __src__.UTILS.utils import Utilities, DebuggingUtilities, FileUtilities
+files = FileManager()
 
-utils = Utilities()
-debug = DebuggingUtilities()
-files = FileUtilities()
-dprint = debug.dprint
-
-api_key = Utilities.getOpenAIKey()
+api_key = files.getOpenAIKey()
 
 # a class that is linked to a temporary audio file.
 # when the audio file is played, it is deleted after it finishes playing.
@@ -45,6 +41,7 @@ class SpeechGenerator:
         self.client.api_key = api_key
         self.model = model
         self.voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
+        self.audioFolder = files.locateDirectory("audio")
         self.audio_objects = []
         
 
@@ -53,17 +50,14 @@ class SpeechGenerator:
             text = "Something went wrong. Please try again."
         if voice not in self.voices:
             raise ValueError(f"Voice '{voice}' not supported. Choose from {self.voices}")
-        debug.startTimer("SpeechGeneration")
 
-        speech_file_path = files.getProjectDirectory() + f"\\__bin__\\{voice}_speech.mp3" # TODO: I dont think this is a cross-platform solution! change this to use os.path.join instead!
+        speech_file_path = files.createFile(self.audioFolder, f"{voice}.mp3")
         response = self.client.audio.speech.create(
             model=self.model,
             voice=voice,
             input=text
         )
         response.stream_to_file(speech_file_path)
-
-        debug.stopTimer("SpeechGeneration")
 
         temp_audio = TemporaryAudio(speech_file_path)
         self.audio_objects.append(temp_audio)

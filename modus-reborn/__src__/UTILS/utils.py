@@ -2,19 +2,17 @@ import os
 import wave
 import contextlib
 import webbrowser
-import platform
 import threading
 import time
-import re
+
+from __src__.DATA.manage_files import FileManager
+
+files = FileManager()
 
 # a collection of utility functions that are commonly used throughout the project
 # some of these arent used at the moment, but I have other plans for them in the future.
 
 class Utilities:
-    @staticmethod
-    def getOS():
-        return platform.system()
-
     @staticmethod
     def openWebsite(url):
         webbrowser.open(url)
@@ -30,20 +28,6 @@ class Utilities:
             rate = f.getframerate()
             duration = frames / float(rate)
             return duration
-
-    @staticmethod
-    def getOpenAIKey():
-        api_key_file_path = FileUtilities.getProjectDirectory() + "\\__auth__\\api-key.txt" # once again, not cross-platform! TODO: fix this
-        
-        # check if the file exists
-        if not os.path.exists(api_key_file_path):
-            return None # return None if the file doesn't exist, this can be used to prompt the user to enter their key (when thats actually implemented)
-
-        # open the file and read the key
-        with open(api_key_file_path, "r") as apiKeyFile:
-            api_key = apiKeyFile.read().strip()
-
-        return api_key
 
 
 class DebuggingUtilities:

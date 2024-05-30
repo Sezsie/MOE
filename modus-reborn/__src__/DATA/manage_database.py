@@ -1,17 +1,20 @@
-import os
+
 import sqlite3
 import threading
 from __src__.AI.nlp.tiny_bert import TinyBERT
 from __src__.AI.nlp.classifier import RequestClassifier
+from __src__.DATA.manage_files import FileManager
 
-stored_path = os.path.join(os.getcwd(), 'modus-reborn', '__storage__')
+files = FileManager()
 bert = TinyBERT()
 ml = RequestClassifier()
+
+stored_path = files.locateDirectory("databases")
 
 class Database:
     def __init__(self):
         self.local = threading.local()
-        self.db_path = stored_path + '/command_database.sqlite'
+        self.db_path = files.createFile(stored_path, "commands_database.sqlite")
         self.ensure_table()
 
     def get_connection(self):
@@ -65,14 +68,11 @@ class Database:
         cursor.execute('SELECT * FROM commands')
         return cursor.fetchall()
 
-    def clear(self):
+    def wipe_database(self):
         conn, cursor = self.get_connection()
         cursor.execute('DELETE FROM commands')
         conn.commit()
         
-    def does_database_exist(self):
-        return os.path.exists(self.db_path)
-
 
     # perform a semantic search on the database to find the most relevant command.
     # the function first cleans and normalizes the query text. It then checks for a subset match, 
