@@ -16,7 +16,6 @@ api_key = files.getOpenAIKey()
 
 # a class that is linked to a temporary audio file.
 # when the audio file is played, it is deleted after it finishes playing.
-
 class TemporaryAudio:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -29,9 +28,9 @@ class TemporaryAudio:
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy(): 
             time.sleep(1)
-        pygame.mixer.music.stop()  # Stop the audio
-        pygame.mixer.music.unload()  # Unload the audio file
-        os.remove(self.file_path)  # Delete file after playing
+        pygame.mixer.music.stop()  # stop the audio
+        pygame.mixer.music.unload()  # unload the audio file
+        os.remove(self.file_path)  # delete file after playing
 
 
 # a class that generates speech from text using the OpenAI API.

@@ -1,6 +1,9 @@
 import torch
 from transformers import AutoTokenizer, AutoModel
 from __src__.AI.nlp.classifier import RequestClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 # a class that uses TinyBERT to get embeddings and calculate similarity between texts
 # I might extend this class to include more functionality in the future, but for now it's just for getting embeddings and calculating similarity
@@ -60,30 +63,37 @@ class TinyBERT:
         # return the similarity
         return similarity.item()
     
-    def batch_similarity(self, text, texts, threshold=0.85):
+    def batch_similarity(self, text, texts, threshold):
         # if texts is empty, return None
         if not texts:
             return None, None
+        print(f"Texts: {texts}")
         
         # clean the text
         text = classifier.preprocess(text)
-        
-        # get the embedding for the text
-        embedding = self.get_embedding(text).squeeze(0)
-        embedding_mean = torch.mean(embedding, dim=0)
+        texts = [classifier.preprocess(t) for t in texts]
 
-        # get the embeddings for the list of texts
-        embeddings = self.get_embeddings(texts)
-        mean_embeddings = [torch.mean(emb.squeeze(0), dim=0) for emb in embeddings]
+        # create a TfidfVectorizer
+        vectorizer = TfidfVectorizer()
+        
+        print(f"Creating tfidf matrix for text: {text}")
+
+        # fit the vectorizer on the texts and transform the texts into tf-idf vectors
+        tfidf_matrix = vectorizer.fit_transform([text] + texts)
 
         # calculate the cosine similarity between the text and each text in the list
-        similarities = [torch.nn.functional.cosine_similarity(embedding_mean.unsqueeze(0), mean_emb.unsqueeze(0), dim=1).item() for mean_emb in mean_embeddings]
+        cosine_similarities = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix).flatten()
+
         # find the index of the most similar text
-        max_similarity = max(similarities)
-        most_similar_index = similarities.index(max_similarity)
+        max_similarity = max(cosine_similarities[1:])  # exclude the first item because it's the similarity with itself
+        most_similar_index = cosine_similarities[1:].argmax()
+        
+        
+        print(f"Max similarity: {max_similarity}")
 
         # check if the highest similarity is below the threshold
         if max_similarity < threshold:
+            print(f"No similar text found with similarity above {threshold}")
             return None, None
         else:
             return max_similarity, texts[most_similar_index]

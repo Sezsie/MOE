@@ -1,2 +1,7 @@
 # OpenAI API Key
 api-key.txt
+.vscode/
+modus-reborn/Include/
+modus-reborn/Library/
+modus-reborn/Lib/ 
+modus-reborn/Scripts

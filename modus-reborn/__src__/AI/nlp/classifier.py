@@ -16,22 +16,12 @@ import re
 # might as well import punkt
 import nltk
 
-# if punkt isnt installed, install it
 try:
     nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-    
-# get the stopwords
-try:
     stopwords = nltk.corpus.stopwords.words('english')
-except LookupError:
-    nltk.download('stopwords')
-    
-# get the stemmer
-try:
     stemmer = nltk.PorterStemmer()
 except LookupError:
+    nltk.download('punkt')
     nltk.download('stopwords')
     stemmer = nltk.PorterStemmer()
 
@@ -45,7 +35,7 @@ class RequestClassifier:
         
     # load the model from the saved pickle file
     def loadModel(self):
-        dir = os.path.join("modus-reborn", "__ml__")
+        dir = os.path.join("modus-reborn", "__resources__", "ml")
         self.classifier = pickle.load(open(os.path.join(dir, "MODUS_MODEL.pkl"), "rb"))
         self.vectorizer = pickle.load(open(os.path.join(dir, "MODUS_VECTORIZER.pkl"), "rb"))
         self.pca = pickle.load(open(os.path.join(dir, "MODUS_PCA.pkl"), "rb"))
