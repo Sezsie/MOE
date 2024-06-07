@@ -67,7 +67,7 @@ generate_code = False
 # set debug mode to True to print debug messages
 debug.setDebugMode(True)
 # wipe the database on startup for testing purposes
-db.wipe_database()
+# db.wipe_database()
 
 # TODO: add a check for the user's internet connection. If the user is offline, the program should not run and return an error message in a popup window.
 # TODO: if the user hasn't set up their OpenAI API key, a popup window should appear asking them to paste their key into a text box, which is then saved to a file.
