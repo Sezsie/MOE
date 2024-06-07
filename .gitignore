@@ -1,8 +1,9 @@
 .gitignore
 .gitattributes
-pyvenv.cfg
 .vscode/
+workspace-scripts/
 modus-reborn/Include/
 modus-reborn/Library/
 modus-reborn/Lib/ 
 modus-reborn/Scripts
+modus-reborn/pyvenv.cfg
