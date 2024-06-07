@@ -8,6 +8,8 @@ from __src__.DATA.manage_files import FileManager
 
 files = FileManager()
 
+seconds_to_wait = 1.5 # after this many seconds of silence, the recording will stop.
+
 # this class is used to record audio from the user's microphone while they are speaking. it will stop recording when there has been silence for a certain amount of time.
 
 # note from past me: holy CRAP this class is messy.
@@ -19,7 +21,7 @@ class VoiceRecorder:
         self.CHANNELS = 1
         self.RATE = 44100
         self.CHUNK = 1024
-        self.SILENT_CHUNKS = int(1.5 * self.RATE / self.CHUNK)  # about one and a half seconds of silence
+        self.SILENT_CHUNKS = int(seconds_to_wait * self.RATE / self.CHUNK)
         self.SENSITIVITY = 1 # sensitivity of the voice detection algorithm. 0 is high sensitivity, 10 is low sensitivity.
 
     def normalize_threshold(self, sensitivity):
@@ -62,7 +64,6 @@ class VoiceRecorder:
         audio_chunks = []
         silent_chunks = []
 
-
         # while the user is speaking, keep recording until there is silence for a certain amount of time
         try:
             i = 0
@@ -75,7 +76,8 @@ class VoiceRecorder:
                 else:
                     i += 1
                     silent_chunks = []
-                    
+                
+                # if there are more than SILENT_CHUNKS of silence, stop recording.
                 if len(silent_chunks) > self.SILENT_CHUNKS:
                     break
                 
@@ -88,13 +90,16 @@ class VoiceRecorder:
         stream.stop_stream()
         stream.close()
         self.audio.terminate()
+        
+        # analyze the audio data and cut out the silence so we can analyze the length of the recording without the silence later.
+        # audio_chunks = audio_chunks[:len(audio_chunks) - len(silent_chunks) - self.SILENT_CHUNKS]
 
         # save the recording
         filename = "recording_" + time.strftime("%Y%m%d-%H%M%S") + ".wav"
         # move the file to modus-main\Include\bin
-        filename = files.createFile(files.locateDirectory("temp"), filename)
+        filename = files.createFile(files.locateDirectory("audio"), filename)
 
-        
+        # save the audio data to a .wav file
         wf = wave.open(filename, 'wb')
         wf.setnchannels(self.CHANNELS)
         wf.setsampwidth(self.audio.get_sample_size(self.FORMAT))

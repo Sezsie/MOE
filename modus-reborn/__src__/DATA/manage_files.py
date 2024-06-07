@@ -23,6 +23,8 @@ class FileManager:
             self.OS = FileManager.getOS()
             self.topLevel = os.path.join(os.path.expanduser("~"), "MODUS")
             self.firstTimeSetup()
+            self.emptyTemp()
+            
         
     # create the necessary directories based on the user's operating system.
     def firstTimeSetup(self):
@@ -45,10 +47,29 @@ class FileManager:
                 open(full_path, 'a').close()  # create the file
             else:
                 os.makedirs(full_path, exist_ok=True)  # create the directory
-        
+                
         # if the openai api key file doesn't contain a key, prompt the user to enter one.
         if not self.getOpenAIKey():
             self.AIKeyPrompt()
+            
+        # if there still isn't an api key, delete all the created directories and exit
+        # TODO: this is inefficient, it would be much better if I could just ask for the key before any directories are created, but the way the code is structured, that's not possible at the moment.
+        # fix this in the future.
+        if not self.getOpenAIKey():
+            print("No API key found. Cleaning up...")
+            # delete the top level directory and all of its contents
+            print(f'Deleting {self.topLevel}')
+            shutil.rmtree(self.topLevel)
+            exit()
+            
+    # for every folder in the temp directory, delete all files inside of subdirectories
+    def emptyTemp(self):
+        temp = os.path.join(self.topLevel, "temp")
+        for root, dirs, files in os.walk(temp):
+            for file in files:
+                print(f"Dumping {file} in {root}...")
+                os.remove(os.path.join(root, file))
+
         
     def AIKeyPrompt(self):
         # locate the api-key.txt file in the data/auth directory
@@ -59,11 +80,11 @@ class FileManager:
         # set the window title
         namingUI.setWindowTitle("Welcome!")
         # change the label text
-        namingUI.change_label("To use MODUS, please enter your OpenAI API key below.")
+        namingUI.change_label("Welcome! To use MODUS, please enter your OpenAI API key below.")
         # set the window size
         namingUI.set_size(500, 300)
         # write the text in the text box to the keyfile
-        namingUI.add_button("Submit", lambda: [self.writeToFile(keyfile, namingUI.textEdit.toPlainText()), namingUI.close()], "Get started with MODUS!")
+        namingUI.add_button("Submit", lambda: [self.writeToFile(keyfile, namingUI.textEdit.toPlainText()), namingUI.close()], "Meet your MODUS!")
         # load the UI
         namingUI.show()
         namingUI.app.exec()
@@ -83,10 +104,16 @@ class FileManager:
             
     # create a file with a specified name and location, and optional content. supports writing to file with binary data, so that's nifty!
     def createFile(self, location, name, optionalContent=None):
-        print(f"Creating file: {name} @ {location}")
+        
+        # if a file with the name "name" already exists in the location, return the path to that file.
+        if self.doesFileExist(name):
+            print(f"File {name} already exists.")
+            return self.locateFile(name)
+        
         # create the directory if it doesn't exist
         os.makedirs(location, exist_ok=True)
-        
+        print(f"Creating file: {name} @ {location}")
+         
         # create a file in the specified location and add optional content if specified.
         with open(os.path.join(location, name), "w") as f:
             if optionalContent:

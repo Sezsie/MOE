@@ -106,10 +106,11 @@ class Database:
                     print(f"Matching command found in database: {command}")
                     return command
         
-        # if no verbatim or subset match is found but there are common words, use BERT to find the most similar command
+        # if no verbatim or subset match is found but there are common words, use machine learning to find the most similar command
         if commands_with_common_words:
-            similarity, most_similar = bert.batch_similarity(query, commands_with_common_words, 0.85)
-            print(f"Most similar command found by BERT: {most_similar}, with similarity: {similarity}")
+            print("Searching for the most similar command...")
+            similarity, most_similar = bert.batch_similarity(query, commands_with_common_words, 0.35)
+            print(f"Most similar command found: {most_similar}, with similarity: {similarity}")
             return most_similar
         else:
             print("No common words found between the query and database commands.")

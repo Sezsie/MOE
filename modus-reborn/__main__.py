@@ -41,6 +41,8 @@ from __src__.AI.agents.generate_with_codus import generate_with_codus
 from concurrent.futures import ThreadPoolExecutor
 from PySide6.QtWidgets import QApplication
 
+import pygame
+
 print("MODUS is starting...")
 
 # class instances
@@ -55,6 +57,7 @@ code_executor = CodeExecutor()
 
 # neccessary global variables
 transcribedAudio = ""
+sfx_directory = os.path.join("modus-reborn", "__resources__", "sfx")
 
 # state variables
 recording = False
@@ -64,7 +67,7 @@ generate_code = False
 # set debug mode to True to print debug messages
 debug.setDebugMode(True)
 # wipe the database on startup for testing purposes
-# db.wipe_database()
+db.wipe_database()
 
 # TODO: add a check for the user's internet connection. If the user is offline, the program should not run and return an error message in a popup window.
 # TODO: if the user hasn't set up their OpenAI API key, a popup window should appear asking them to paste their key into a text box, which is then saved to a file.
@@ -78,21 +81,23 @@ debug.setDebugMode(True)
 # start recording audio
 def listenAndRecord():
     global recording 
+    pygame.mixer.init()
     
     # set the recording flag to True
     recording = True
+    
+    # play a sound to indicate that recording has started
+    pygame.mixer.music.load(os.path.join(sfx_directory, "modus_active.mp3"))
+    pygame.mixer.music.play()
+    
     # call the record method of the Recorder instance
     audioFile = recorder.record()
-    # check the length of the audio file. if it's too short, delete it and return "too short". Otherwise, return the audio file
-    duration = utils.checkAudioLength(audioFile)
-    # round off duration to 1 decimal place.
-    duration = round(duration, 1)
-
-    if duration <= 1:
-        recording = False
-        return "too short"
     
-    # Set the recording flag to False
+    # play a sound to indicate that recording has stopped
+    pygame.mixer.music.load(os.path.join(sfx_directory, "modus_inactive.mp3"))
+    pygame.mixer.music.play()
+    
+    # set the recording flag to False
     recording = False
     return audioFile
 
@@ -160,14 +165,15 @@ def manage_contexts(prediction, userSpeech, likely_command = None):
     # functional contexts
     # if a command is found, no need to generate code, just perform the command
     if likely_command:
-        MODUS.addContext(f"Excitedly tell the user that you're on it.")
+        MODUS.addContext(f"Excitedly tell the user that you're on it. Do not ask questions.")
         # if no command is found, generate code
     else:
-        if prediction == "command" or userSpeech.lower().find("i want you to") != -1:
+        # TODO: fix the prediction classifier. I feel its a problem with not enough data, but I'm not sure.
+        if userSpeech.lower().find("i want you to") != -1:
             generate_code = True
-            MODUS.addContext("Inform the user that you'll try to do that, and ask them for feedback on the code that will shortly appear on the screen. Do not write any code in your response.")
-        elif prediction == "conversational":
-            MODUS.addContext("""If you misunderstand the user's request, inform them that they can use the phrase "I want you to" for guaranteed results. Otherwise, just chat with the user.""")
+            MODUS.addContext("Tell the user that you're on it then as for feedback on the code that will shortly appear on their screen. Do not say anything that contains code or is unrelated to the previous sentence.")
+        else:
+            MODUS.addContext("""If the user is making a computer-related request, inform them in one sentence that they can use the phrase "I want you to" to get you to do something. Otherwise, just chat with the user.""")
             
     # finally, now that contexts have been set, chat with the user in a separate thread
     chat_with_modus(userSpeech)
@@ -203,8 +209,14 @@ def main(string = None):
         # call the listenAndRecord function and store the result
         recordedAudio = listenAndRecord()
         
+        # check the length of the audio file. if it's too short, delete it and return "too short". Otherwise, return the audio file
+        duration = utils.checkAudioLength(recordedAudio)
+        
+        # round off duration to 1 decimal place.
+        duration = round(duration, 1)
+        
         # if the audio file was too short, print a message and return
-        if recordedAudio == "too short":
+        if duration <= 1:
             print("Audio file too short. Please try again.")
             os.remove(recordedAudio)
             return
@@ -233,11 +245,12 @@ if __name__ == "__main__":
     if not files.locateFile("settings.json"):
         # for now create a settings file with no data. there will be a user settings class that will handle this in the future, so the only purpose this serves is to check if the user is new.
         files.createFile(files.locateDirectory("data"), "settings.json", "{}")
-        MODUS.addContext("This is the first time you are meeting the user. Introduce yourself with a clever paragraph, describing what you can do, how you learn, and your limitations.") 
+        MODUS.addContext("""This is the first time you are meeting the user. Introduce yourself with a clever paragraph, describing what you can do, how you learn, and your limitations.
+                         Let the user know that they can press the buttons alt and m at the same time to talk to you.""")
         pass
     else:
         # otherwise, the user is returning and should be welcomed back
-        MODUS.addContext("Welcome the user back.") 
+        MODUS.addContext("Succinctly welcome the user back, then optimistically tell them that you're ready to assist them with their needs. Do not ask questions.") 
       
     # upon starting, greet the user  
     chat_with_modus("Perform the action described above system message.")
