@@ -1,5 +1,6 @@
-# OpenAI API Key
-api-key.txt
+.gitignore
+.gitattributes
+pyvenv.cfg
 .vscode/
 modus-reborn/Include/
 modus-reborn/Library/
