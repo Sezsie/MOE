@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, Signal
 
 app = QApplication(sys.argv)
 
-# a collection of classes that handle the UI of MODUS
+# a collection of classes that handle the UI of MOE
 
 class BaseUI(QWidget):
     def __init__(self):
@@ -54,7 +54,7 @@ class TextEditorUI(BaseUI):
 class NamingUI(BaseUI):
     def __init__(self):
         super().__init__()
-        self.label = QLabel("Name your command, and MODUS will remember it. (e.g. 'open file')")
+        self.label = QLabel("Name your command, and MOE will remember it. (e.g. 'open file')")
         # window title
         self.setWindowTitle("Save Command")
         self.layout.addWidget(self.label)
@@ -104,5 +104,5 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     editor_ui = NamingUI()
     editor_ui.show()
-    editor_ui.add_button("Save", editor_ui.print_text, "Save the command to MODUS's internal database.")
+    editor_ui.add_button("Save", editor_ui.print_text, "Save the command to MOE's internal database.")
     sys.exit(app.exec_())

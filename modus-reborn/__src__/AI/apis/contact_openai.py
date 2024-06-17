@@ -181,13 +181,3 @@ class Agent:
     def addAssistantMessage(self, message):
         self.message_logs.append({"role": "assistant", "content": message})
         
-
-if __name__ == "__main__":
-    # get the MODUS agent
-    ai = AIHandler()
-    MODUS = ai.getAgent("MODUS")
-    # if the agent does not exist print an error message
-    if MODUS is None:
-        print("MODUS agent does not exist.")
-    else:
-        print("MODUS agent found.")

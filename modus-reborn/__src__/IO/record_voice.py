@@ -96,7 +96,7 @@ class VoiceRecorder:
 
         # save the recording
         filename = "recording_" + time.strftime("%Y%m%d-%H%M%S") + ".wav"
-        # move the file to modus-main\Include\bin
+        # move the file to MOE-main\Include\bin
         filename = files.createFile(files.locateDirectory("audio"), filename)
 
         # save the audio data to a .wav file

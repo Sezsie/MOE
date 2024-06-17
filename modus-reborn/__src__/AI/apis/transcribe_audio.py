@@ -29,13 +29,13 @@ class AudioTranscriber:
                 print(response.status_code)
                 return "Error in transcription"
     
-    # a method to replace the text "motus" with "MODUS" in the transcription.
-    # during testing, the AI would often mishear "MODUS" as "motus", so this method is used to correct that.
-    # otherwise, the AI would respond with something to the effect of "I am not Motus, I am MODUS. blah blah blah". it was so annoying.
+    # a method to replace the text "motus" with "MOE" in the transcription.
+    # during testing, the AI would often mishear "MOE" as "motus", so this method is used to correct that.
+    # otherwise, the AI would respond with something to the effect of "I am not Motus, I am MOE. blah blah blah". it was so annoying.
     # you can probably tell that I am a bit salty about this.
     def correctTranscription(self, transcription):
         # while we're here, we might as well make the transcription lowercase for easier processing.
         transcription = transcription.lower()
-        # replace "motus" with "MODUS"
-        transcription = transcription.replace("motus", "MODUS")
+        # replace "motus" with "MOE"
+        transcription = transcription.replace("motus", "MOE")
         return transcription
