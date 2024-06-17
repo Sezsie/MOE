@@ -60,7 +60,7 @@ code_executor = CodeExecutor()
 
 # neccessary global variables
 transcribedAudio = ""
-sfx_directory = os.path.join("MOE-reborn", "__resources__", "sfx")
+sfx_directory = os.path.join("modus-reborn", "__resources__", "sfx")
 
 # state variables
 recording = False

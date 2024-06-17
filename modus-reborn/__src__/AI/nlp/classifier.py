@@ -35,7 +35,7 @@ class RequestClassifier:
         
     # load the model from the saved pickle file
     def loadModel(self):
-        dir = os.path.join("MOE-reborn", "__resources__", "ml")
+        dir = os.path.join("modus-reborn", "__resources__", "ml")
         self.classifier = pickle.load(open(os.path.join(dir, "MOE_MODEL.pkl"), "rb"))
         self.vectorizer = pickle.load(open(os.path.join(dir, "MOE_VECTORIZER.pkl"), "rb"))
         self.pca = pickle.load(open(os.path.join(dir, "MOE_PCA.pkl"), "rb"))
