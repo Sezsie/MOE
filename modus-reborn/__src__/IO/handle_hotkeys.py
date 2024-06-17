@@ -1,6 +1,6 @@
 # HotkeyHandler.py
 
-# Description: A class that handles hotkeys for the modus AI assistant. This class is designed to be
+# Description: A class that handles hotkeys for the MOE AI assistant. This class is designed to be
 # used in conjunction with the keyboard module.
 
 import keyboard

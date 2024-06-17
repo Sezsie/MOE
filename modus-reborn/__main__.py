@@ -18,6 +18,9 @@
 #############################################################################################################
 # IMPORTS AND GLOBALS
 #############################################################################################################
+
+print("Initializing...")
+
 import os
 
 from __src__.IO.handle_hotkeys import HotkeyHandler
@@ -33,8 +36,8 @@ from __src__.DATA.manage_files import FileManager
 from __src__.AI.apis.contact_openai import AIHandler
 from __src__.IO.code_executor import CodeExecutor
 
-# import the chat_with_modus and generate_with_codus functions from the agents modules
-from __src__.AI.agents.chat_to_modus import chat_with_modus
+# import the chat_with_MOE and generate_with_codus functions from the agents modules
+from __src__.AI.agents.chat_to_moe import chat_with_MOE
 from __src__.AI.agents.generate_with_codus import generate_with_codus
 
 # import future
@@ -43,7 +46,7 @@ from PySide6.QtWidgets import QApplication
 
 import pygame
 
-print("MODUS is starting...")
+print("Starting...")
 
 # class instances
 files = FileManager()
@@ -57,7 +60,7 @@ code_executor = CodeExecutor()
 
 # neccessary global variables
 transcribedAudio = ""
-sfx_directory = os.path.join("modus-reborn", "__resources__", "sfx")
+sfx_directory = os.path.join("MOE-reborn", "__resources__", "sfx")
 
 # state variables
 recording = False
@@ -87,14 +90,14 @@ def listenAndRecord():
     recording = True
     
     # play a sound to indicate that recording has started
-    pygame.mixer.music.load(os.path.join(sfx_directory, "modus_active.mp3"))
+    pygame.mixer.music.load(os.path.join(sfx_directory, "MOE_active.mp3"))
     pygame.mixer.music.play()
     
     # call the record method of the Recorder instance
     audioFile = recorder.record()
     
     # play a sound to indicate that recording has stopped
-    pygame.mixer.music.load(os.path.join(sfx_directory, "modus_inactive.mp3"))
+    pygame.mixer.music.load(os.path.join(sfx_directory, "MOE_inactive.mp3"))
     pygame.mixer.music.play()
     
     # set the recording flag to False
@@ -116,8 +119,8 @@ def create_code_editor_ui(ui):
     ui.add_button("Regenerate", lambda: regenerate_animation(ui), "Regenerate the code in a different way (WARNING: MAY FREEZE THE UI FOR A FEW SECONDS).")
     # execute code currently in editor
     ui.add_button("Execute", lambda: code_executor.moderate_code(ui.textEdit.toPlainText()), "Execute the code currently in the editor.")
-    # save the code in the editor to MODUS's internal database and execute it
-    ui.add_button("Save", lambda: display_save_UI(ui.textEdit.toPlainText()), "Save the code so MODUS can remember it for later.")
+    # save the code in the editor to MOE's internal database and execute it
+    ui.add_button("Save", lambda: display_save_UI(ui.textEdit.toPlainText()), "Save the code so MOE can remember it for later.")
     
 def regenerate_animation(ui):
     # spawn in a new thread
@@ -128,7 +131,7 @@ def regenerate_animation(ui):
 def display_save_UI(code = None):
     editor_ui = NamingUI()
     editor_ui.show()
-    editor_ui.add_button("Save", lambda: save_command(editor_ui, ml.preprocess(editor_ui.textEdit.toPlainText()), code), "Save the command to MODUS's internal database.") 
+    editor_ui.add_button("Save", lambda: save_command(editor_ui, ml.preprocess(editor_ui.textEdit.toPlainText()), code), "Save the command to MOE's internal database.") 
     
 def AIKeyPrompt():
     # locate the api-key.txt file in the data/auth directory
@@ -138,7 +141,7 @@ def AIKeyPrompt():
     namingUI = NamingUI()
     
     # set the window title
-    namingUI.setWindowTitle("MODUS")
+    namingUI.setWindowTitle("MOE")
     
     # change the label text
     namingUI.change_label("Welcome! Please enter your OpenAI API key below, and we can get started!")
@@ -147,7 +150,7 @@ def AIKeyPrompt():
     namingUI.set_size(500, 300)
     
     # write the text in the text box to the keyfile
-    namingUI.add_button("Submit", lambda: [files.writeToFile(keyfile, namingUI.textEdit.toPlainText()), namingUI.close()], "Get started with MODUS!")
+    namingUI.add_button("Submit", lambda: [files.writeToFile(keyfile, namingUI.textEdit.toPlainText()), namingUI.close()], "Get started with MOE!")
     
     # load the UI
     namingUI.show()
@@ -165,18 +168,18 @@ def manage_contexts(prediction, userSpeech, likely_command = None):
     # functional contexts
     # if a command is found, no need to generate code, just perform the command
     if likely_command:
-        MODUS.addContext(f"Excitedly tell the user that you're on it. Do not ask questions.")
+        MOE.addContext(f"Excitedly tell the user that you're on it. Do not ask questions.")
         # if no command is found, generate code
     else:
         # TODO: fix the prediction classifier. I feel its a problem with not enough data, but I'm not sure.
         if userSpeech.lower().find("i want you to") != -1:
             generate_code = True
-            MODUS.addContext("Tell the user that you're on it then as for feedback on the code that will shortly appear on their screen. Do not say anything that contains code or is unrelated to the previous sentence.")
+            MOE.addContext("Tell the user that you're on it then as for feedback on the code that will shortly appear on their screen. Do not say anything that contains code or is unrelated to the previous sentence.")
         else:
-            MODUS.addContext("""If the user is making a computer-related request, inform them in one sentence that they can use the phrase "I want you to" to get you to do something. Otherwise, just chat with the user.""")
+            MOE.addContext("""If the user is making a computer-related request, inform them in one sentence that they can use the phrase "I want you to" to get you to do something. Otherwise, just chat with the user.""")
             
     # finally, now that contexts have been set, chat with the user in a separate thread
-    chat_with_modus(userSpeech)
+    chat_with_MOE(userSpeech)
     
     if likely_command:
         # execute the command if found
@@ -187,9 +190,9 @@ def manage_contexts(prediction, userSpeech, likely_command = None):
 # MAIN
 ############################################################################################################# 
 
-# instantiate the AIHandler class and get the MODUS agent after the user has entered their OpenAI key
+# instantiate the AIHandler class and get the MOE agent after the user has entered their OpenAI key
 ai = AIHandler.getInstance()
-MODUS = ai.getAgent("MODUS")
+MOE = ai.getAgent("MOE")
 
 # main function with optional text parameter
 def main(string = None):
@@ -237,7 +240,7 @@ def main(string = None):
 
 if __name__ == "__main__":  
     # create a HotkeyHandler instance with the hotkey "alt+m" and the main function as the callback
-    print("MODUS is running...")
+    print("MOE is running...")
     Handler = HotkeyHandler("alt+m", main)
     
     # aesthetic contexts
@@ -245,15 +248,15 @@ if __name__ == "__main__":
     if not files.locateFile("settings.json"):
         # for now create a settings file with no data. there will be a user settings class that will handle this in the future, so the only purpose this serves is to check if the user is new.
         files.createFile(files.locateDirectory("data"), "settings.json", "{}")
-        MODUS.addContext("""This is the first time you are meeting the user. Introduce yourself with a clever paragraph, describing what you can do, how you learn, and your limitations.
+        MOE.addContext("""This is the first time you are meeting the user. Introduce yourself with a clever paragraph, describing what you can do, how you learn, and your limitations.
                          Let the user know that they can press the buttons alt and m at the same time to talk to you.""")
         pass
     else:
         # otherwise, the user is returning and should be welcomed back
-        MODUS.addContext("Succinctly welcome the user back, then optimistically tell them that you're ready to assist them with their needs. Do not ask questions.") 
+        MOE.addContext("Succinctly welcome the user back, then optimistically tell them that you're ready to assist them with their needs. Do not ask questions.") 
       
     # upon starting, greet the user  
-    chat_with_modus("Perform the action described above system message.")
+    chat_with_MOE("Perform the action described above system message.")
         
     # keep the program running with a UI loop
     while True:

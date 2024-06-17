@@ -12,7 +12,7 @@ OS = files.OS
 # globals
 ai = AIHandler.getInstance()
 executor = CodeExecutor()
-MODUS = ai.getAgent("MODUS")
+MOE = ai.getAgent("MOE")
 
 # this script is designed to generate code using the CODUS AI agent (powered by OpenAI's GPT-4 Turbo model).
 # it has a wide range of functions designed to generate code based on the user's input and the current operating system.
@@ -37,8 +37,8 @@ First, make a succinct step-by step plan to solve the user's problem. After, und
 # this is a function that contains the headers that will be used to segment the AI's responses.
 codusHeaders = ["#step_by_step_plan", "#generated_code"]
 
-# create an agent named MODUS.
-# modus is the main AI that the user will interact with. it is based on the gpt-3.5-turbo-1106 model, which is designed for conversational output.
+# create an agent named MOE.
+# MOE is the main AI that the user will interact with. it is based on the gpt-3.5-turbo-1106 model, which is designed for conversational output.
 CODUS = ai.createAgent(
     agentName,
     agentModel,  

@@ -1,6 +1,6 @@
 # File Manager class
 # Purpose: The purpose of this class is to provide a structured way to create, destroy, and manage files in the system across platforms.
-# Each file in the MODUS system is managed by this class, and the appropriate files will be initialized in the user's directory on windows, and in the user's home directory on linux.
+# Each file in the MOE system is managed by this class, and the appropriate files will be initialized in the user's directory on windows, and in the user's home directory on linux.
 
 # import ui classes
 from __src__.IO.handle_ui import NamingUI
@@ -18,19 +18,19 @@ class FileManager:
         self.__dict__ = self._shared_state
         # on initialization, save the user's operating system and create the necessary directories.
         # topLevel is the directory that holds all the other directories in the project. gets initialized in the firstTimeSetup method.
-        # gets set to C:\Users\(whatever the user's name is)\MODUS on windows, and ~/MODUS on linux.
+        # gets set to C:\Users\(whatever the user's name is)\MOE on windows, and ~/MOE on linux.
         if not self._shared_state:
             self.OS = FileManager.getOS()
-            self.topLevel = os.path.join(os.path.expanduser("~"), "MODUS")
+            self.topLevel = os.path.join(os.path.expanduser("~"), "MOE")
             self.firstTimeSetup()
             self.emptyTemp()
             
         
     # create the necessary directories based on the user's operating system.
     def firstTimeSetup(self):
-        # if the MODUS directory already exists, return.
+        # if the MOE directory already exists, return.
         if os.path.exists(self.topLevel):
-            print("MODUS directory already exists.")
+            print("MOE directory already exists.")
             return
         
         # a list of what directories/files to create in the topLevel directory upon first time setup.
@@ -80,11 +80,11 @@ class FileManager:
         # set the window title
         namingUI.setWindowTitle("Welcome!")
         # change the label text
-        namingUI.change_label("Welcome! To use MODUS, please enter your OpenAI API key below.")
+        namingUI.change_label("Welcome! To use MOE, please enter your OpenAI API key below.")
         # set the window size
         namingUI.set_size(500, 300)
         # write the text in the text box to the keyfile
-        namingUI.add_button("Submit", lambda: [self.writeToFile(keyfile, namingUI.textEdit.toPlainText()), namingUI.close()], "Meet your MODUS!")
+        namingUI.add_button("Submit", lambda: [self.writeToFile(keyfile, namingUI.textEdit.toPlainText()), namingUI.close()], "Meet your MOE!")
         # load the UI
         namingUI.show()
         namingUI.app.exec()

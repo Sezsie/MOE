@@ -1,2 +1,2 @@
-# MODUS
- MODUS is a Multi-Operational Directed Utilities System, a savvy AI assistant that aims to automate tasks through natural language.
+# MOE
+ MOE is a Modular Operational Executor, a savvy AI assistant that aims to automate tasks through natural language.
