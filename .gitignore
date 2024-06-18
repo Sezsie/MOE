@@ -1,9 +1,9 @@
 .gitignore
-.gitattributes
 .vscode/
 workspace-scripts/
-modus-reborn/Include/
-modus-reborn/Library/
-modus-reborn/Lib/ 
-modus-reborn/Scripts
-modus-reborn/pyvenv.cfg
+.venv/MOE/Include/
+.venv/MOE/Library/
+.venv/MOE/Lib/ 
+.venv/MOE/Scripts
+.venv/MOE/pyvenv.cfg
+.venv/MOE/site-packages
