@@ -1,9 +1,9 @@
 .gitignore
 .vscode/
 workspace-scripts/
-.venv/MOE/Include/
-.venv/MOE/Library/
-.venv/MOE/Lib/ 
-.venv/MOE/Scripts
-.venv/MOE/pyvenv.cfg
-.venv/MOE/site-packages
+MOE/Include/
+MOE/Library/
+MOE/Lib/ 
+MOE/Scripts
+MOE/pyvenv.cfg
+MOE/site-packages
