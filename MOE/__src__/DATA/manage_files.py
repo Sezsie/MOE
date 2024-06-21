@@ -9,8 +9,6 @@ import platform
 import os
 import shutil
 
-desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-
 class FileManager:
     _shared_state = {}
     
@@ -165,6 +163,12 @@ class FileManager:
     def writeToFile(self, file, content):
         with open(file, "w") as f:
             f.write(content)
+            
+    # on windows, the user's desktop is the default location for file creation. on linux, it's the user's home directory.
+    def getDefaultDirectory(self):
+        if self.OS == "Windows":
+            return os.path.join(os.path.expanduser("~"), "Desktop")
+        return os.path.expanduser("~")
     
     @staticmethod
     def getOS():

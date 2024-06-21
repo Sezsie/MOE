@@ -3,7 +3,7 @@
 # Description: A class that handles hotkeys for the MOE AI assistant. This class is designed to be
 # used in conjunction with the keyboard module.
 
-import keyboard
+import keyboard # requires root access on linux systems, CHANGE THIS!!!!!!!!
 
 class HotkeyHandler:
     def __init__(self, hotkey, function):

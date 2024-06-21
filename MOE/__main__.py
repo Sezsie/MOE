@@ -159,32 +159,40 @@ def AIKeyPrompt():
 
 def manage_contexts(prediction, userSpeech, likely_command = None):
     global generate_code
-    global ran_once
-    
-    ran_once = True
-    cleantext = ml.preprocess(userSpeech)
-    likely_command = db.semantic_search(cleantext)
+    likely_command = db.semantic_search(userSpeech)
     
     # functional contexts
     # if a command is found, no need to generate code, just perform the command
     if likely_command:
         MOE.addContext(f"Excitedly tell the user that you're on it. Do not ask questions.")
         # if no command is found, generate code
-    else:
-        # TODO: fix the prediction classifier. I feel its a problem with not enough data, but I'm not sure.
-        if prediction == "command" or userSpeech.lower().find("i want you to") != -1:
-            generate_code = True
-            MOE.addContext("Tell the user that you're on it then as for feedback on the code that will shortly appear on their screen. Do not say anything that contains code or is unrelated to the previous sentence.")
-        else:
-            MOE.addContext("""If the user is making a computer-related request, inform them in one sentence that they can use the phrase "I want you to" to get you to do something. Otherwise, just chat with the user.""")
+    else:  
+        MOE.addContext("""If the user is making a computer-related request, include the phrase 'I can do that' in your next response then 
+                    ask for feedback on the code that will shortly appear on their screen. Do not include any code in your response.
+                    Otherwise, just chat with the user.""")
             
     # finally, now that contexts have been set, chat with the user in a separate thread
-    chat_with_MOE(userSpeech)
+    response = chat_with_MOE(userSpeech)
     
+    # if a command is found, execute it
     if likely_command:
         # execute the command if found
         code_executor.execute_code((db.get(likely_command)[2]))
-    
+        
+    # if the user's speech is a command, generate code
+    # this is decided by the classifier, which is trained to predict whether the user's speech is a command or conversational
+    # as well as the LLM model, which returns "i can do that" if the user's speech is a command
+    elif prediction == "command" or response.lower().find("i can do that") != -1:
+        
+        # differentiate between what actually flagged the user's speech as a command
+        if prediction == "command":
+            print("User's speech was classified as a command.")
+        else:
+            print("User's speech was flagged as a command by the LLM model.")
+        
+        generate_code = True
+        print("Set code generation flag to True.")
+  
 
 #############################################################################################################
 # MAIN
@@ -233,8 +241,11 @@ def main(string = None):
     # predict the class of the user's input speech, returns either "command" or "conversational"
     prediction = ml.classify(transcribedAudio)
     
+    # clean the input text
+    cleantext = ml.preprocess(transcribedAudio)
+    
     # manage the context of the conversation based on the prediction and other factors
-    manage_contexts(prediction, transcribedAudio)
+    manage_contexts(prediction, cleantext)
 
 
 
