@@ -62,5 +62,7 @@ def chat_with_MOE(userSpeech):
     
     # after MOE has responded, wipe the system messages to keep the conversation contexts clean.
     # MOE.wipeMemory()
+    # return what MOE said
+    return MOEResponse
     
 

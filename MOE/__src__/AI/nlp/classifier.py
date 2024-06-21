@@ -38,7 +38,7 @@ class RequestClassifier:
         dir = os.path.join("MOE", "__resources__", "ml")
         self.classifier = pickle.load(open(os.path.join(dir, "MOE_MODEL.pkl"), "rb"))
         self.vectorizer = pickle.load(open(os.path.join(dir, "MOE_VECTORIZER.pkl"), "rb"))
-        self.pca = pickle.load(open(os.path.join(dir, "MOE_PCA.pkl"), "rb"))
+        self.lda = pickle.load(open(os.path.join(dir, "MOE_LDA.pkl"), "rb"))
       
     # preprocess the text data  
     def preprocess(self, text):
@@ -56,13 +56,14 @@ class RequestClassifier:
     def classify(self, text):
         # preprocess and vectorize the text
         preprocessed_text = self.preprocess(text)
-        vectorized_text = self.vectorizer.transform([preprocessed_text])
+        # vectorize the sentence
+        vectorized_sentence = self.vectorizer.transform([preprocessed_text])
     
-        # reduce the dimensionality to match the model's expected input
-        reduced_text = self.pca.transform(vectorized_text.toarray())
+        # transform the sentence using the lda model
+        lda_transformed_sentence = self.lda.transform(vectorized_sentence.toarray())
     
-        # predict
-        prediction = self.classifier.predict(reduced_text)
+        # predict the sentence
+        prediction = self.classifier.predict(lda_transformed_sentence)
 
         # return the classification
         if prediction[0] == 0:
