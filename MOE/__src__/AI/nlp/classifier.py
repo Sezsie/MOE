@@ -1,7 +1,7 @@
 #############################################################################################################
 # CLASS DOCUMENTATION
 #############################################################################################################
-# AUTHOR: Garrett Thrower, Brian Boggs, Colby McClure
+# AUTHOR: Sabrina Finch, Brian Boggs, Colby McClure
 # LAST UPDATED: 2024-15-04
 # FUNCTION: This class is responsible for classifying text data into two categories: "command" or "conversational".
 # The classifier is trained on a dataset of text data specifically curated for this purpose. Is also contains
