@@ -76,15 +76,6 @@ python -m MOE
 
 Everything MOE saves for you (settings, learned commands, logs) lives in that same `~/MOE/` folder.
 
-
-## Known rough edges
-
-Worth knowing before you dig in:
-
-- **The classifier is the weak link.** It has learned that a request looks like "open something", and it is very sure about that. Retraining it on a wider spread of phrasings is the real fix. Until then an LLM fallback catches what it misses.
-- **Windows only, for now.** The hotkey handling calls Win32 APIs directly. Script execution has a Linux path, but the rest has not been tested there.
-- **No offline mode.** Transcription, chat, and speech all need a network connection.
-
 ---
 
 ## Credits
