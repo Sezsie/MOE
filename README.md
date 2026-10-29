@@ -82,4 +82,4 @@ Everything MOE saves for you (settings, learned commands, logs) lives in that sa
 
 Built by **Sabrina Finch**.
 
-The intent classifier was researched and developed with **Brian Boggs** and **Colby McClure**. The dataset work and model comparison behind it were a joint effort.
+The intent classifier was researched and developed with **Brian** and **Colby**. The dataset work and model comparison behind it were a joint effort.
